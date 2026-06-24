@@ -52,17 +52,17 @@ export default function Login() {
 
   return (
     <AuthLayout quote="From dream trips to wedding days — every chapter, beautifully planned.">
-      <h1 className="text-3xl font-bold text-kiiya-dark">
+      <h1 className="text-2xl font-bold text-kiiya-dark dark:text-white">
         {t("auth.loginTitle")}
       </h1>
-      <p className="mt-2 text-gray-500">{t("auth.loginSub")}</p>
+      <p className="mt-2 text-gray-500 dark:text-[#A89EC9]">{t("auth.loginSub")}</p>
 
       {/* Google OAuth */}
       <button
         type="button"
         onClick={handleGoogle}
         disabled={googleLoading}
-        className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 py-3 font-semibold text-kiiya-dark transition hover:bg-gray-50 disabled:opacity-60"
+        className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 py-3 font-semibold text-kiiya-dark transition hover:bg-gray-50 disabled:opacity-60 dark:border-[#2D2A3E] dark:text-white dark:hover:bg-[#221F32]"
       >
         {googleLoading ? (
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -74,14 +74,16 @@ export default function Login() {
 
       {/* Divider */}
       <div className="my-6 flex items-center gap-4">
-        <span className="h-px flex-1 bg-gray-200" />
-        <span className="text-sm text-gray-400">{t("auth.orContinue")}</span>
-        <span className="h-px flex-1 bg-gray-200" />
+        <span className="h-px flex-1 bg-gray-200 dark:bg-[#2D2A3E]" />
+        <span className="text-sm text-gray-400 dark:text-[#6B6480]">
+          {t("auth.orContinue")}
+        </span>
+        <span className="h-px flex-1 bg-gray-200 dark:bg-[#2D2A3E]" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+          <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
             {t("auth.email")}
           </label>
           <input
@@ -89,13 +91,13 @@ export default function Login() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20 dark:border-[#2D2A3E] dark:bg-[#1A1825] dark:text-white dark:placeholder:text-[#6B6480]"
             placeholder="you@example.com"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+          <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
             {t("auth.password")}
           </label>
           <div className="relative">
@@ -104,7 +106,7 @@ export default function Login() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20 dark:border-[#2D2A3E] dark:bg-[#1A1825] dark:text-white dark:placeholder:text-[#6B6480]"
               placeholder="••••••••"
             />
             <button

@@ -25,12 +25,12 @@ function MemberRow({ member, canRemove, onRemove }) {
   const role = ROLE_META[member.role] ?? ROLE_META.viewer;
   const RoleIcon = role.icon;
   return (
-    <div className="group flex items-center gap-3 rounded-xl border border-gray-100 p-3">
+    <div className="group flex items-center gap-3 rounded-xl border border-gray-100 p-3 dark:border-[#2D2A3E]">
       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-kiiya-primary text-sm font-semibold text-white">
         {initials(member.email)}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold text-kiiya-dark">{member.email}</p>
+        <p className="truncate font-semibold text-kiiya-dark dark:text-white">{member.email}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <span
             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${role.badge}`}
@@ -91,13 +91,13 @@ export default function MembersTab({
   };
 
   const inputCls =
-    "rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20";
+    "rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20 dark:border-[#2D2A3E] dark:bg-[#221F32] dark:text-white dark:placeholder:text-[#6B6480]";
 
   return (
     <div className="space-y-6">
       {/* Invite form */}
-      <div className="rounded-2xl border border-purple-100 bg-white p-5">
-        <h3 className="mb-3 font-bold text-kiiya-dark">{t("members.invite")}</h3>
+      <div className="rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
+        <h3 className="mb-3 font-bold text-kiiya-dark dark:text-white">{t("members.invite")}</h3>
         <form
           onSubmit={handleInvite}
           className="flex flex-col gap-2 sm:flex-row"
@@ -134,8 +134,8 @@ export default function MembersTab({
       </div>
 
       {/* Members list */}
-      <div className="rounded-2xl border border-purple-100 bg-white p-5">
-        <h3 className="mb-4 font-bold text-kiiya-dark">{t("members.title")}</h3>
+      <div className="rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
+        <h3 className="mb-4 font-bold text-kiiya-dark dark:text-white">{t("members.title")}</h3>
         <div className="space-y-2">
           {/* Owner (current user) — always shown, never removable */}
           {currentUserEmail && (

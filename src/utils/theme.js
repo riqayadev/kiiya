@@ -1,3 +1,37 @@
+// Light/dark surface tokens. Tailwind `dark:` variants are the primary styling
+// mechanism; this map documents the palette and is available for any component
+// that wants to read raw values (e.g. inline styles, canvas, charts).
+export const THEMES = {
+  light: {
+    bg: "#F7F5FF",
+    bgSecondary: "#FFFFFF",
+    bgTertiary: "#F0EEFF",
+    text: "#1E1B2E",
+    textSecondary: "#6B7280",
+    textMuted: "#9CA3AF",
+    border: "#E5E0FF",
+    borderHover: "#C4B8FF",
+    cardBg: "#FFFFFF",
+    cardBorder: "#EDE9FF",
+    sidebarBg: "#FFFFFF",
+    sidebarBorder: "#EDE9FF",
+  },
+  dark: {
+    bg: "#0F0E17",
+    bgSecondary: "#1A1825",
+    bgTertiary: "#221F32",
+    text: "#F0EEFF",
+    textSecondary: "#A89EC9",
+    textMuted: "#6B6480",
+    border: "#2D2A3E",
+    borderHover: "#4A4560",
+    cardBg: "#1A1825",
+    cardBorder: "#2D2A3E",
+    sidebarBg: "#13111E",
+    sidebarBorder: "#2D2A3E",
+  },
+};
+
 // Theme color options used by the Profile → Preferences section.
 export const THEME_COLORS = [
   { key: "violet", label: "Violet", hex: "#7C6EF5" },

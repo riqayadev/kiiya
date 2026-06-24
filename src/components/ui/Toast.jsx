@@ -33,15 +33,17 @@ function ToastItem({ t, onClose }) {
   }, [onClose]);
   return (
     <div
-      className={`pointer-events-auto flex w-80 max-w-[calc(100vw-2rem)] items-start gap-3 overflow-hidden rounded-xl border bg-white p-4 shadow-lg animate-toast-in ${v.ring}`}
+      className={`pointer-events-auto flex w-80 max-w-[calc(100vw-2rem)] items-start gap-3 overflow-hidden rounded-xl border bg-white p-4 shadow-lg animate-toast-in dark:bg-[#1A1825] dark:shadow-black/40 ${v.ring}`}
       role="status"
     >
       <Icon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${v.accent}`} />
-      <p className="min-w-0 flex-1 text-sm font-medium text-kiiya-dark">{t.message}</p>
+      <p className="min-w-0 flex-1 text-sm font-medium text-kiiya-dark dark:text-white">
+        {t.message}
+      </p>
       <button
         onClick={onClose}
         aria-label="Dismiss"
-        className="flex-shrink-0 text-gray-300 transition hover:text-kiiya-dark"
+        className="flex-shrink-0 text-gray-300 transition hover:text-kiiya-dark dark:hover:text-white"
       >
         <X className="h-4 w-4" />
       </button>

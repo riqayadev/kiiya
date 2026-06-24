@@ -47,9 +47,16 @@ export const viewport = {
   initialScale: 1,
 };
 
+// Runs before paint to set the `dark` class from the stored preference,
+// preventing a light→dark flash on first load.
+const themeScript = `(function(){try{var t=localStorage.getItem('kiiya_theme')||'light';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();`;
+
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="font-sans antialiased">
         <NavigationProgress />
         {children}

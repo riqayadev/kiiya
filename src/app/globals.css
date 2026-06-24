@@ -10,56 +10,17 @@ body {
   min-height: 100vh;
   background-color: theme("colors.kiiya-bg");
   color: theme("colors.kiiya-dark");
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Floating decorative cards in the hero section */
-@keyframes kiiya-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-14px);
-  }
+html.dark body {
+  background-color: #0f0e17;
+  color: #f0eeff;
 }
 
-.animate-float {
-  animation: kiiya-float 5s ease-in-out infinite;
-}
+/* ── Micro-animations not owned by the Tailwind config ──────── */
 
-/* ── Micro-animations ─────────────────────────────────────── */
-
-/* Page fade-in on navigation */
-@keyframes kiiya-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.animate-fade-in {
-  animation: kiiya-fade-in 0.2s ease-out both;
-}
-
-/* Modal enter (fade + scale) */
-@keyframes kiiya-modal-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-.animate-modal-in {
-  animation: kiiya-modal-in 0.18s ease-out both;
-}
-
-/* Backdrop fade */
+/* Backdrop fade (modals) */
 @keyframes kiiya-backdrop-in {
   from {
     opacity: 0;
@@ -108,15 +69,13 @@ body {
 }
 
 /* Skeleton shimmer */
-@keyframes kiiya-shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
 .kiiya-skeleton {
   position: relative;
   overflow: hidden;
   background-color: #efeafc;
+}
+html.dark .kiiya-skeleton {
+  background-color: #221f32;
 }
 .kiiya-skeleton::after {
   content: "";
@@ -129,24 +88,15 @@ body {
     rgba(255, 255, 255, 0.6),
     transparent
   );
-  animation: kiiya-shimmer 1.5s infinite;
+  animation: shimmer 1.5s infinite;
 }
-
-/* Floating blobs on the landing hero */
-@keyframes kiiya-blob {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(20px, -30px) scale(1.08);
-  }
-  66% {
-    transform: translate(-15px, 15px) scale(0.95);
-  }
-}
-.animate-blob {
-  animation: kiiya-blob 14s ease-in-out infinite;
+html.dark .kiiya-skeleton::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
 }
 
 /* Button press affordance */
@@ -198,4 +148,46 @@ button:not(:disabled):active {
 .kiiya-calendar .fc-theme-standard td,
 .kiiya-calendar .fc-theme-standard th {
   border-color: #f1edff;
+}
+
+/* ── FullCalendar dark mode ─────────────────────────────────── */
+html.dark .kiiya-calendar {
+  --fc-border-color: #2d2a3e;
+  --fc-today-bg-color: #221f32;
+  --fc-neutral-bg-color: #13111e;
+  --fc-page-bg-color: #1a1825;
+  --fc-event-border-color: transparent;
+  --fc-list-event-hover-bg-color: #221f32;
+  --fc-neutral-text-color: #a89ec9;
+}
+
+html.dark .kiiya-calendar .fc .fc-col-header-cell-cushion {
+  color: #a89ec9;
+}
+
+html.dark .kiiya-calendar .fc .fc-daygrid-day-number {
+  color: #f0eeff;
+}
+
+html.dark .kiiya-calendar .fc .fc-day-today .fc-daygrid-day-number {
+  color: #a594f9;
+}
+
+html.dark .kiiya-calendar .fc-theme-standard td,
+html.dark .kiiya-calendar .fc-theme-standard th {
+  border-color: #2d2a3e;
+}
+
+html.dark .kiiya-calendar .fc .fc-list-event:hover td {
+  background-color: #221f32;
+}
+
+html.dark .kiiya-calendar .fc-list-day-cushion {
+  background-color: #221f32;
+  color: #f0eeff;
+}
+
+html.dark .kiiya-calendar .fc-list,
+html.dark .kiiya-calendar .fc-list-table td {
+  color: #f0eeff;
 }

@@ -19,13 +19,13 @@ function Row({ href, icon: Icon, title, desc }) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-4 rounded-2xl border border-purple-100 bg-white p-5 transition hover:border-kiiya-primary/40 hover:shadow-sm"
+      className="flex items-center gap-4 rounded-2xl border border-purple-100 bg-white p-5 transition hover:border-kiiya-primary/40 hover:shadow-sm dark:border-[#2D2A3E] dark:bg-[#1A1825]"
     >
-      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-purple-100 text-kiiya-primary">
+      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-purple-100 text-kiiya-primary dark:bg-[#221F32] dark:text-[#A594F9]">
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-semibold text-kiiya-dark">{title}</p>
+        <p className="font-semibold text-kiiya-dark dark:text-white">{title}</p>
         <p className="text-sm text-gray-500">{desc}</p>
       </div>
       <ChevronRight className="h-5 w-5 flex-shrink-0 text-gray-300" />
@@ -46,7 +46,7 @@ export default function SettingsPage() {
   return (
     <AppLayout>
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-bold text-kiiya-dark">
+        <h1 className="text-2xl font-bold text-kiiya-dark dark:text-white">
           {t("settings.title")}
         </h1>
 
@@ -71,16 +71,16 @@ export default function SettingsPage() {
           />
         </div>
 
-        <div className="mt-6 flex items-center justify-between rounded-2xl border border-purple-100 bg-white p-5">
+        <div className="mt-6 flex items-center justify-between rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
           <span className="text-sm text-gray-500">{t("settings.version")}</span>
-          <span className="text-sm font-semibold text-kiiya-dark">
+          <span className="text-sm font-semibold text-kiiya-dark dark:text-white">
             v{APP_VERSION}
           </span>
         </div>
 
         <button
           onClick={handleSignOut}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-white py-3 font-semibold text-red-500 transition hover:bg-red-50"
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-white py-3 font-semibold text-red-500 transition hover:bg-red-50 dark:border-red-500/30 dark:bg-[#1A1825] dark:hover:bg-red-500/10"
         >
           <LogOut className="h-5 w-5" />
           {t("settings.signOut")}

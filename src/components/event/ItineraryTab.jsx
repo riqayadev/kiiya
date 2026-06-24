@@ -44,7 +44,7 @@ function CategoryPicker({ value, onChange }) {
         <Icon className="h-4 w-4" />
       </button>
       {open && (
-        <div className="absolute left-0 top-9 z-30 w-44 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg">
+        <div className="absolute left-0 top-9 z-30 w-44 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg dark:border-[#2D2A3E] dark:bg-[#1A1825]">
           {ACTIVITY_CATEGORIES.map((c) => {
             const meta = getCategory(c);
             const MIcon = meta.icon;
@@ -56,7 +56,7 @@ function CategoryPicker({ value, onChange }) {
                   onChange(c);
                   setOpen(false);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50"
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50 dark:text-[#F0EEFF] dark:hover:bg-[#221F32]"
               >
                 <span style={{ color: meta.color }}>
                   <MIcon className="h-4 w-4" />
@@ -98,7 +98,7 @@ function ActivityRow({
   };
 
   return (
-    <div className="group rounded-lg transition hover:bg-purple-50/40">
+    <div className="group rounded-lg transition hover:bg-purple-50/40 dark:hover:bg-[#221F32]/60">
       <div className="flex items-center gap-2 px-1 py-1.5">
         {/* Drag handle (visual affordance) */}
         <span className="cursor-grab text-gray-300 opacity-0 transition group-hover:opacity-100">
@@ -138,7 +138,7 @@ function ActivityRow({
             }
           }}
           placeholder="Activity…"
-          className={`min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm font-medium text-kiiya-dark outline-none transition hover:border-gray-200 focus:border-kiiya-primary ${
+          className={`min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm font-medium text-kiiya-dark outline-none dark:text-white transition hover:border-gray-200 focus:border-kiiya-primary ${
             activity.is_completed ? "line-through opacity-50" : ""
           }`}
         />
@@ -159,7 +159,7 @@ function ActivityRow({
           type="button"
           onClick={() => setExpanded((x) => !x)}
           aria-label="Details"
-          className={`flex-shrink-0 rounded p-1 text-gray-300 transition hover:text-kiiya-dark ${
+          className={`flex-shrink-0 rounded p-1 text-gray-300 transition hover:text-kiiya-dark dark:hover:text-white ${
             expanded ? "rotate-180" : ""
           }`}
         >
@@ -240,10 +240,10 @@ function DayCard({
   };
 
   return (
-    <div className="group/day rounded-2xl border border-purple-100 bg-white p-5">
+    <div className="group/day rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
       {/* Day header */}
       <div className="flex items-center gap-2">
-        <h3 className="flex-shrink-0 text-lg font-bold text-kiiya-dark">
+        <h3 className="flex-shrink-0 text-lg font-bold text-kiiya-dark dark:text-white">
           Day {day.day_number}
         </h3>
         {day.date && (
@@ -345,9 +345,9 @@ export default function ItineraryTab({
   return (
     <div className="space-y-4">
       {itineraryDays.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-purple-200 bg-white py-12 text-center">
+        <div className="rounded-2xl border border-dashed border-purple-200 bg-white py-12 text-center dark:border-[#2D2A3E] dark:bg-[#1A1825]">
           <span className="text-4xl">🗓️</span>
-          <p className="mt-3 font-semibold text-kiiya-dark">
+          <p className="mt-3 font-semibold text-kiiya-dark dark:text-white">
             No days planned yet
           </p>
           <p className="mt-1 text-sm text-gray-500">
@@ -374,7 +374,7 @@ export default function ItineraryTab({
       <button
         onClick={handleAddDay}
         disabled={addingDay}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-purple-200 bg-white py-4 font-semibold text-kiiya-primary transition hover:border-kiiya-primary/50 hover:bg-purple-50/40 disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-purple-200 bg-white py-4 dark:border-[#2D2A3E] dark:bg-[#1A1825] font-semibold text-kiiya-primary transition hover:border-kiiya-primary/50 hover:bg-purple-50/40 dark:hover:bg-[#221F32]/60 disabled:opacity-60"
       >
         {addingDay ? (
           <Loader2 className="h-5 w-5 animate-spin" />

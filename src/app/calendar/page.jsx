@@ -132,7 +132,7 @@ export default function CalendarPage() {
                 setTitle(api()?.view.title || "");
               }}
               aria-label="Previous"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-purple-100 bg-white text-kiiya-dark transition hover:border-kiiya-primary/40"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-purple-100 bg-white text-kiiya-dark transition hover:border-kiiya-primary/40 dark:border-[#2D2A3E] dark:bg-[#1A1825] dark:text-white"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -142,7 +142,7 @@ export default function CalendarPage() {
                 setTitle(api()?.view.title || "");
               }}
               aria-label="Next"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-purple-100 bg-white text-kiiya-dark transition hover:border-kiiya-primary/40"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-purple-100 bg-white text-kiiya-dark transition hover:border-kiiya-primary/40 dark:border-[#2D2A3E] dark:bg-[#1A1825] dark:text-white"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -151,17 +151,17 @@ export default function CalendarPage() {
                 api()?.today();
                 setTitle(api()?.view.title || "");
               }}
-              className="rounded-full border border-purple-100 bg-white px-4 py-1.5 text-sm font-semibold text-kiiya-dark transition hover:border-kiiya-primary/40"
+              className="rounded-full border border-purple-100 bg-white px-4 py-1.5 text-sm font-semibold text-kiiya-dark dark:border-[#2D2A3E] dark:bg-[#1A1825] dark:text-white transition hover:border-kiiya-primary/40"
             >
               {t("calendar.today")}
             </button>
-            <h1 className="ml-1 text-lg font-bold text-kiiya-dark md:text-xl">
+            <h1 className="ml-1 text-lg font-bold text-kiiya-dark dark:text-white md:text-xl">
               {title}
             </h1>
           </div>
 
           {/* View switcher */}
-          <div className="flex gap-1 rounded-full border border-purple-100 bg-white p-1">
+          <div className="flex gap-1 rounded-full border border-purple-100 bg-white p-1 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
             {VIEWS.map((v) => (
               <button
                 key={v.key}
@@ -169,7 +169,7 @@ export default function CalendarPage() {
                 className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
                   view === v.key
                     ? "bg-kiiya-primary text-white"
-                    : "text-kiiya-dark/70 hover:text-kiiya-dark"
+                    : "text-kiiya-dark/70 hover:text-kiiya-dark dark:text-[#A89EC9]"
                 }`}
               >
                 {t(v.label)}
@@ -180,7 +180,7 @@ export default function CalendarPage() {
 
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
           {/* Calendar */}
-          <div className="rounded-2xl border border-purple-100 bg-white p-4">
+          <div className="rounded-2xl border border-purple-100 bg-white p-4 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
             <FullCalendar
               ref={calendarRef}
               plugins={[
@@ -206,8 +206,8 @@ export default function CalendarPage() {
 
           {/* Upcoming sidebar */}
           <aside className="hidden lg:block">
-            <div className="rounded-2xl border border-purple-100 bg-white p-5">
-              <h2 className="mb-3 font-bold text-kiiya-dark">
+            <div className="rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
+              <h2 className="mb-3 font-bold text-kiiya-dark dark:text-white">
                 {t("calendar.upcoming")}
               </h2>
               {upcoming.length === 0 ? (
@@ -222,13 +222,13 @@ export default function CalendarPage() {
                       <Link
                         key={e.id}
                         href={`/dashboard/events/${e.id}`}
-                        className="flex items-start gap-3 rounded-xl border border-gray-100 p-3 transition hover:border-kiiya-primary/40"
+                        className="flex items-start gap-3 rounded-xl border border-gray-100 p-3 transition hover:border-kiiya-primary/40 dark:border-[#2D2A3E] dark:hover:border-kiiya-primary/40"
                       >
                         <span className="text-2xl">
                           {e.cover_emoji || colors.icon}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold text-kiiya-dark">
+                          <p className="truncate text-sm font-semibold text-kiiya-dark dark:text-white">
                             {e.title}
                           </p>
                           <p className="mt-0.5 text-xs text-gray-400">

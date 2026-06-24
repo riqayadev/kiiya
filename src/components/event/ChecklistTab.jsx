@@ -22,7 +22,7 @@ function ChecklistRow({
 
   return (
     <div
-      className="group flex items-center gap-2 rounded-lg px-1 py-1 transition hover:bg-purple-50/40"
+      className="group flex items-center gap-2 rounded-lg px-1 py-1 transition hover:bg-purple-50/40 dark:hover:bg-[#221F32]/60"
       draggable
       {...dragHandlers}
     >
@@ -51,7 +51,7 @@ function ChecklistRow({
           }
         }}
         placeholder="List item…"
-        className={`min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm font-medium text-kiiya-dark outline-none transition hover:border-gray-200 focus:border-kiiya-primary ${
+        className={`min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm font-medium text-kiiya-dark outline-none dark:text-white transition hover:border-gray-200 focus:border-kiiya-primary ${
           item.is_completed ? "line-through opacity-50" : ""
         }`}
       />
@@ -97,7 +97,7 @@ function Section({
   };
 
   return (
-    <div className="rounded-2xl border border-purple-100 bg-white p-5">
+    <div className="rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
       <input
         value={sectionName}
         onChange={(e) => setSectionName(e.target.value)}
@@ -208,14 +208,14 @@ export default function ChecklistTab({
   return (
     <div className="space-y-6">
       {/* Progress */}
-      <div className="rounded-2xl border border-purple-100 bg-white p-5">
+      <div className="rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
         <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="font-semibold text-kiiya-dark">
+          <span className="font-semibold text-kiiya-dark dark:text-white">
             {completed} of {total} completed
           </span>
           <span className="font-semibold text-gray-500">{pct}%</span>
         </div>
-        <div className="h-3 w-full overflow-hidden rounded-full bg-gray-100">
+        <div className="h-3 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-[#221F32]">
           <div
             className="h-full rounded-full bg-kiiya-primary transition-all"
             style={{ width: `${pct}%` }}
@@ -225,9 +225,9 @@ export default function ChecklistTab({
 
       {/* Empty state */}
       {total === 0 && (
-        <div className="rounded-2xl border border-dashed border-purple-200 bg-white py-12 text-center">
+        <div className="rounded-2xl border border-dashed border-purple-200 bg-white py-12 text-center dark:border-[#2D2A3E] dark:bg-[#1A1825]">
           <span className="text-4xl">✅</span>
-          <p className="mt-3 font-semibold text-kiiya-dark">
+          <p className="mt-3 font-semibold text-kiiya-dark dark:text-white">
             Your checklist is empty
           </p>
           <p className="mt-1 text-sm text-gray-500">
@@ -272,7 +272,7 @@ export default function ChecklistTab({
       {/* Add section */}
       <button
         onClick={addSection}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-purple-200 bg-white py-3 text-sm font-semibold text-kiiya-primary transition hover:border-kiiya-primary/50 hover:bg-purple-50/40"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-purple-200 bg-white py-3 dark:border-[#2D2A3E] dark:bg-[#1A1825] text-sm font-semibold text-kiiya-primary transition hover:border-kiiya-primary/50 hover:bg-purple-50/40 dark:hover:bg-[#221F32]/60"
       >
         <FolderPlus className="h-4 w-4" />
         Add Section

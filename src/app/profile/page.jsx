@@ -28,16 +28,16 @@ function Card({ id, title, children }) {
   return (
     <section
       id={id}
-      className="rounded-2xl border border-purple-100 bg-white p-6"
+      className="rounded-2xl border border-purple-100 bg-white p-6 dark:border-[#2D2A3E] dark:bg-[#1A1825]"
     >
-      <h2 className="mb-4 text-lg font-bold text-kiiya-dark">{title}</h2>
+      <h2 className="mb-4 text-lg font-bold text-kiiya-dark dark:text-white">{title}</h2>
       {children}
     </section>
   );
 }
 
 const inputCls =
-  "w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20";
+  "w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20 dark:border-[#2D2A3E] dark:bg-[#221F32] dark:text-white dark:placeholder:text-[#6B6480]";
 
 export default function ProfilePage() {
   const { lang, switchLang } = useLang();
@@ -296,7 +296,7 @@ export default function ProfilePage() {
     <AppLayout>
       <div className="mx-auto max-w-3xl space-y-6">
         {/* A) Header */}
-        <div className="flex items-center gap-5 rounded-2xl border border-purple-100 bg-white p-6">
+        <div className="flex items-center gap-5 rounded-2xl border border-purple-100 bg-white p-6 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
           <div className="relative">
             {profile?.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -331,7 +331,7 @@ export default function ProfilePage() {
             />
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-2xl font-bold text-kiiya-dark">
+            <h1 className="truncate text-2xl font-bold text-kiiya-dark dark:text-white">
               {displayName}
             </h1>
             {form.username && (
@@ -345,7 +345,7 @@ export default function ProfilePage() {
         <Card id="personal" title={t("profile.personalInfo")}>
           <div className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+              <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
                 {t("profile.fullName")}
               </label>
               <input
@@ -355,7 +355,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+              <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
                 {t("profile.username")}
               </label>
               <input
@@ -366,7 +366,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+              <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
                 {t("profile.bio")}
               </label>
               <textarea
@@ -377,10 +377,10 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+              <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
                 {t("profile.email")}
               </label>
-              <input value={user?.email || ""} disabled className={`${inputCls} bg-gray-50 text-gray-400`} />
+              <input value={user?.email || ""} disabled className={`${inputCls} bg-gray-50 text-gray-400 dark:bg-[#13111E]`} />
             </div>
             {infoError && <p className="text-sm text-red-600">{infoError}</p>}
             <button
@@ -402,10 +402,10 @@ export default function ProfilePage() {
         <Card id="preferences" title={t("profile.preferences")}>
           <div className="space-y-5">
             <div>
-              <p className="mb-2 text-sm font-medium text-kiiya-dark">
+              <p className="mb-2 text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
                 {t("profile.language")}
               </p>
-              <div className="inline-flex rounded-full border border-purple-100 p-1">
+              <div className="inline-flex rounded-full border border-purple-100 p-1 dark:border-[#2D2A3E]">
                 {["en", "id"].map((l) => (
                   <button
                     key={l}
@@ -413,7 +413,7 @@ export default function ProfilePage() {
                     className={`rounded-full px-4 py-1.5 text-sm font-semibold uppercase transition ${
                       lang === l
                         ? "bg-kiiya-primary text-white"
-                        : "text-kiiya-dark/70"
+                        : "text-kiiya-dark/70 dark:text-[#A89EC9]"
                     }`}
                   >
                     {l}
@@ -422,7 +422,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div>
-              <p className="mb-2 text-sm font-medium text-kiiya-dark">
+              <p className="mb-2 text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
                 {t("profile.themeColor")}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -450,7 +450,7 @@ export default function ProfilePage() {
         {/* D) Security */}
         <Card id="security" title={t("profile.security")}>
           <form onSubmit={changePassword} className="space-y-4">
-            <p className="text-sm font-semibold text-kiiya-dark">
+            <p className="text-sm font-semibold text-kiiya-dark dark:text-white">
               {t("profile.changePassword")}
             </p>
             <input
@@ -492,7 +492,7 @@ export default function ProfilePage() {
           <div className="my-5 border-t border-gray-100" />
 
           <form onSubmit={savePin} className="space-y-3">
-            <p className="text-sm font-semibold text-kiiya-dark">
+            <p className="text-sm font-semibold text-kiiya-dark dark:text-white">
               {t("profile.pin")}
             </p>
             <p className="text-sm text-gray-500">
@@ -533,11 +533,11 @@ export default function ProfilePage() {
         <Card id="stats" title={t("profile.stats")}>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {statCards.map(({ icon: Icon, label, value }) => (
-              <div key={label} className="rounded-xl bg-purple-50/50 p-4">
+              <div key={label} className="rounded-xl bg-purple-50/50 p-4 dark:bg-[#221F32]">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-100 text-kiiya-primary">
                   <Icon className="h-4 w-4" />
                 </div>
-                <p className="mt-2 text-lg font-bold text-kiiya-dark">{value}</p>
+                <p className="mt-2 text-lg font-bold text-kiiya-dark dark:text-white">{value}</p>
                 <p className="text-xs text-gray-500">{label}</p>
               </div>
             ))}
@@ -554,8 +554,8 @@ export default function ProfilePage() {
                   key={a.id}
                   className={`flex items-center gap-3 rounded-xl border p-3 transition ${
                     isOn
-                      ? "border-purple-100 bg-purple-50/50"
-                      : "border-gray-100 bg-gray-50"
+                      ? "border-purple-100 bg-purple-50/50 dark:border-[#2D2A3E] dark:bg-[#221F32]"
+                      : "border-gray-100 bg-gray-50 dark:border-[#2D2A3E] dark:bg-[#221F32]"
                   }`}
                 >
                   <div
@@ -568,7 +568,7 @@ export default function ProfilePage() {
                   <div className="min-w-0">
                     <p
                       className={`truncate text-sm font-semibold ${
-                        isOn ? "text-kiiya-dark" : "text-gray-400"
+                        isOn ? "text-kiiya-dark dark:text-white" : "text-gray-400"
                       }`}
                     >
                       {isOn ? a.name : "???"}
@@ -584,7 +584,7 @@ export default function ProfilePage() {
         </Card>
 
         {/* F) Danger zone */}
-        <section className="rounded-2xl border border-red-200 bg-red-50/40 p-6">
+        <section className="rounded-2xl border border-red-200 bg-red-50/40 p-6 dark:border-red-500/20 dark:bg-red-500/5">
           <h2 className="mb-1 text-lg font-bold text-red-600">
             {t("profile.dangerZone")}
           </h2>

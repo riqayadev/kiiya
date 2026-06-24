@@ -103,7 +103,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
   };
 
   const inputCls =
-    "w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20";
+    "w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20 dark:border-[#2D2A3E] dark:bg-[#221F32] dark:text-white dark:placeholder:text-[#6B6480]";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -111,16 +111,16 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
         className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-backdrop-in"
         onClick={onClose}
       />
-      <div className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-xl animate-modal-in">
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h2 className="text-lg font-bold text-kiiya-dark">
+      <div className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-modal animate-modal-in dark:bg-[#1A1825] dark:shadow-black/60">
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-[#2D2A3E]">
+          <h2 className="text-lg font-bold text-kiiya-dark dark:text-white">
             {t("editEvent.title")}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-gray-400 transition hover:text-kiiya-dark"
+            className="text-gray-400 transition hover:text-kiiya-dark dark:hover:text-white"
           >
             <X className="h-5 w-5" />
           </button>
@@ -129,7 +129,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
         <form onSubmit={handleSubmit} className="space-y-5 px-6 py-5">
           {/* Title */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+            <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
               {t("editEvent.eventTitle")} <span className="text-red-500">*</span>
             </label>
             <input
@@ -142,7 +142,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
 
           {/* Type */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-kiiya-dark">
+            <label className="mb-2 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
               {t("editEvent.type")} <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -155,8 +155,8 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
                     onClick={() => setField("type", type)}
                     className={`flex items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-sm font-medium transition ${
                       selected
-                        ? "border-2 border-kiiya-primary bg-purple-50 text-kiiya-primary"
-                        : "border border-gray-200 text-kiiya-dark/70 hover:border-purple-300"
+                        ? "border-2 border-kiiya-primary bg-purple-50 text-kiiya-primary dark:bg-[#221F32]"
+                        : "border border-gray-200 text-kiiya-dark/70 hover:border-purple-300 dark:border-[#2D2A3E] dark:text-[#A89EC9]"
                     }`}
                   >
                     <span>{TYPE_EMOJI[type]}</span>
@@ -169,7 +169,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
 
           {/* Status */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+            <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
               {t("editEvent.status")}
             </label>
             <select
@@ -187,7 +187,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
 
           {/* Cover emoji */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-kiiya-dark">
+            <label className="mb-2 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
               {t("editEvent.coverEmoji")}
             </label>
             <div className="flex flex-wrap gap-2">
@@ -200,8 +200,8 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
                     onClick={() => setField("coverEmoji", emoji)}
                     className={`flex h-10 w-10 items-center justify-center rounded-xl text-xl transition ${
                       selected
-                        ? "border-2 border-kiiya-primary bg-purple-50"
-                        : "border border-gray-200 hover:border-purple-300"
+                        ? "border-2 border-kiiya-primary bg-purple-50 dark:bg-[#221F32]"
+                        : "border border-gray-200 hover:border-purple-300 dark:border-[#2D2A3E]"
                     }`}
                   >
                     {emoji}
@@ -214,7 +214,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+              <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
                 {t("editEvent.startDate")} <span className="text-red-500">*</span>
               </label>
               <input
@@ -225,7 +225,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+              <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
                 {t("editEvent.endDate")}
               </label>
               <input
@@ -240,7 +240,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
 
           {/* Location */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+            <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
               {t("editEvent.location")}
             </label>
             <input
@@ -254,7 +254,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
 
           {/* Budget */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+            <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
               {t("editEvent.budget")}
             </label>
             <input
@@ -269,7 +269,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
 
           {/* Description */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-kiiya-dark">
+            <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
               {t("editEvent.description")}
             </label>
             <textarea
@@ -281,16 +281,16 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
           </div>
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+            <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-500/10">
               {error}
             </p>
           )}
 
-          <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
+          <div className="flex justify-end gap-3 border-t border-gray-100 pt-4 dark:border-[#2D2A3E]">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-gray-200 px-5 py-2.5 font-semibold text-kiiya-dark transition hover:bg-gray-50"
+              className="rounded-xl border border-gray-200 px-5 py-2.5 font-semibold text-kiiya-dark transition hover:bg-gray-50 dark:border-[#2D2A3E] dark:text-white dark:hover:bg-[#221F32]"
             >
               {t("editEvent.cancel")}
             </button>

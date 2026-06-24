@@ -88,6 +88,12 @@ export const translations = {
         signOut: "Sign out",
       },
       filter: { all: "All" },
+      sort: {
+        newest: "Newest",
+        oldest: "Oldest",
+        az: "A–Z",
+        date: "By Date",
+      },
       good: {
         morning: "Good morning",
         afternoon: "Good afternoon",
@@ -290,6 +296,12 @@ export const translations = {
         signOut: "Keluar",
       },
       filter: { all: "Semua" },
+      sort: {
+        newest: "Terbaru",
+        oldest: "Terlama",
+        az: "A–Z",
+        date: "Berdasarkan Tanggal",
+      },
       good: {
         morning: "Selamat pagi",
         afternoon: "Selamat siang",
