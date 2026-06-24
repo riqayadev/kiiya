@@ -1,18 +1,23 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export function useEvents() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const supabase = createClient();
+
+  // Stable client across renders so callbacks don't need it in their deps.
+  const supabaseRef = useRef(null);
+  if (!supabaseRef.current) {
+    supabaseRef.current = createClient();
+  }
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseRef.current
         .from("events")
         .select("*")
         .order("created_at", { ascending: false });
@@ -32,10 +37,10 @@ export function useEvents() {
   const createEvent = async (eventData) => {
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabaseRef.current.auth.getUser();
     if (!user) throw new Error("Not authenticated");
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseRef.current
       .from("events")
       .insert([{ ...eventData, user_id: user.id }])
       .select()
@@ -47,7 +52,7 @@ export function useEvents() {
   };
 
   const updateEvent = async (id, updates) => {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseRef.current
       .from("events")
       .update(updates)
       .eq("id", id)
@@ -60,7 +65,10 @@ export function useEvents() {
   };
 
   const deleteEvent = async (id) => {
-    const { error } = await supabase.from("events").delete().eq("id", id);
+    const { error } = await supabaseRef.current
+      .from("events")
+      .delete()
+      .eq("id", id);
 
     if (error) throw error;
     setEvents((prev) => prev.filter((e) => e.id !== id));
