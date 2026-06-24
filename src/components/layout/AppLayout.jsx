@@ -183,8 +183,10 @@ export default function AppLayout({ children }) {
         </div>
       )}
 
-      {/* Main content */}
-      <main className="min-h-screen p-6 md:ml-64 md:p-8">{children}</main>
+      {/* Main content (re-fades on each route change) */}
+      <main key={pathname} className="min-h-screen p-6 animate-fade-in md:ml-64 md:p-8">
+        {children}
+      </main>
     </div>
   );
 }

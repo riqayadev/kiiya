@@ -108,10 +108,10 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-backdrop-in"
         onClick={onClose}
       />
-      <div className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-xl">
+      <div className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-xl animate-modal-in">
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
           <h2 className="text-lg font-bold text-kiiya-dark">
             {t("editEvent.title")}

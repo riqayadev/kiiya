@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2, GripVertical, FolderPlus } from "lucide-react";
+import { toast } from "@/components/ui/Toast";
 
 function ChecklistRow({
   item,
@@ -91,7 +92,7 @@ function Section({
       await onAdd(title);
       newRef.current?.focus();
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -112,13 +113,13 @@ function Section({
             key={item.id}
             item={item}
             onUpdate={(u) =>
-              onUpdateItem(item.id, u).catch((e) => alert(e.message))
+              onUpdateItem(item.id, u).catch((e) => toast.error(e.message))
             }
             onToggle={(val) =>
-              onToggleItem(item.id, val).catch((e) => alert(e.message))
+              onToggleItem(item.id, val).catch((e) => toast.error(e.message))
             }
             onDelete={() =>
-              onDeleteItem(item.id).catch((e) => alert(e.message))
+              onDeleteItem(item.id).catch((e) => toast.error(e.message))
             }
             onEnter={() => newRef.current?.focus()}
             dragHandlers={{
@@ -200,7 +201,7 @@ export default function ChecklistTab({
     try {
       await addChecklistItem("", name.trim());
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 

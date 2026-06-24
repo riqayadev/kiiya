@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Trash2, ChevronDown } from "lucide-react";
 import { getCategory, EXPENSE_CATEGORIES } from "@/utils/categories";
 import { formatRupiah } from "@/utils/format";
+import { toast } from "@/components/ui/Toast";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -140,7 +141,7 @@ function NewExpenseRow({ onAdd }) {
       await onAdd(payload);
       titleRef.current?.focus();
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -281,10 +282,10 @@ export default function BudgetTab({
                       key={exp.id}
                       expense={exp}
                       onUpdate={(u) =>
-                        updateExpense(exp.id, u).catch((e) => alert(e.message))
+                        updateExpense(exp.id, u).catch((e) => toast.error(e.message))
                       }
                       onDelete={() =>
-                        deleteExpense(exp.id).catch((e) => alert(e.message))
+                        deleteExpense(exp.id).catch((e) => toast.error(e.message))
                       }
                     />
                   ))}
@@ -295,15 +296,20 @@ export default function BudgetTab({
           </div>
         ) : (
           <div className="space-y-0.5">
+            {expenses.length === 0 && (
+              <p className="px-1 py-2 text-sm text-gray-400">
+                💸 No expenses yet — start tracking below.
+              </p>
+            )}
             {expenses.map((exp) => (
               <ExpenseRow
                 key={exp.id}
                 expense={exp}
                 onUpdate={(u) =>
-                  updateExpense(exp.id, u).catch((e) => alert(e.message))
+                  updateExpense(exp.id, u).catch((e) => toast.error(e.message))
                 }
                 onDelete={() =>
-                  deleteExpense(exp.id).catch((e) => alert(e.message))
+                  deleteExpense(exp.id).catch((e) => toast.error(e.message))
                 }
               />
             ))}

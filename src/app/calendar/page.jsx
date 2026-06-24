@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import FullCalendar from "@fullcalendar/react";
@@ -15,6 +15,7 @@ import { useEvents } from "@/hooks/useEvents";
 import { t } from "@/utils/i18n";
 import { eventColors, statusColors } from "@/utils/eventColors";
 import { formatRupiah, formatDateRange } from "@/utils/format";
+import { toast } from "@/components/ui/Toast";
 
 const VIEWS = [
   { key: "dayGridMonth", label: "calendar.month" },
@@ -39,6 +40,14 @@ export default function CalendarPage() {
   const [title, setTitle] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [initialDate, setInitialDate] = useState("");
+
+  // On mobile, default to the compact list view.
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setView("listMonth");
+      calendarRef.current?.getApi()?.changeView("listMonth");
+    }
+  }, []);
 
   const fcEvents = useMemo(
     () =>
@@ -96,7 +105,7 @@ export default function CalendarPage() {
       start_date: start,
       end_date: end,
     }).catch((e) => {
-      alert(e.message);
+      toast.error(e.message);
       info.revert();
     });
   };

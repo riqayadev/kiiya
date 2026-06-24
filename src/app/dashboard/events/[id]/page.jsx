@@ -9,6 +9,8 @@ import {
   MapPin,
   Calendar,
   Camera,
+  Sparkles,
+  ChevronRight,
 } from "lucide-react";
 import { useLang } from "@/hooks/useLang";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,6 +24,7 @@ import ChecklistTab from "@/components/event/ChecklistTab";
 import MembersTab from "@/components/event/MembersTab";
 import EditEventModal from "@/components/ui/EditEventModal";
 import UnsplashModal from "@/components/ui/UnsplashModal";
+import { toast } from "@/components/ui/Toast";
 
 const TABS = [
   { key: "itinerary", label: "eventDetail.tabs.itinerary" },
@@ -195,6 +198,22 @@ export default function EventDetailPage({ params }) {
         </div>
       </div>
 
+      {/* Completed → memory card banner */}
+      {event.status === "completed" && (
+        <div className="px-4 pt-4">
+          <Link
+            href={`/dashboard/events/${event.id}/share`}
+            className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-kiiya-primary to-kiiya-romantic p-4 text-white shadow-sm transition hover:opacity-95"
+          >
+            <Sparkles className="h-5 w-5 flex-shrink-0" />
+            <span className="flex-1 text-sm font-semibold">
+              🎉 Event completed! Generate your memory card
+            </span>
+            <ChevronRight className="h-5 w-5 flex-shrink-0" />
+          </Link>
+        </div>
+      )}
+
       {/* B) TAB NAVIGATION (sticky) */}
       <div className="sticky top-0 z-20 mt-4 border-b border-purple-100 bg-white/95 backdrop-blur">
         <div className="flex gap-1 overflow-x-auto px-6 md:px-8">
@@ -272,14 +291,18 @@ export default function EventDetailPage({ params }) {
         eventType={event.type}
         onClose={() => setShowCover(false)}
         onSelect={(url) =>
-          detail.updateEvent({ cover_image_url: url }).catch((e) => alert(e.message))
+          detail
+            .updateEvent({ cover_image_url: url })
+            .then(() => toast.success("Cover updated!"))
+            .catch((e) => toast.error(e.message))
         }
         onRemove={
           hasCover
             ? () =>
                 detail
                   .updateEvent({ cover_image_url: null })
-                  .catch((e) => alert(e.message))
+                  .then(() => toast.success("Cover removed."))
+                  .catch((e) => toast.error(e.message))
             : undefined
         }
       />

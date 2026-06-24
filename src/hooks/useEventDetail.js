@@ -1,6 +1,12 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "@/components/ui/Toast";
+import {
+  checkBudgetAchievement,
+  checkItineraryAchievement,
+  checkChecklistAchievement,
+} from "@/utils/achievements";
 
 /**
  * Loads everything needed by the Event Detail page and exposes the CRUD
@@ -182,6 +188,7 @@ export function useEventDetail(eventId) {
       .single();
     if (error) throw error;
     setItineraryDays((prev) => [...prev, { ...data, activities: [] }]);
+    toast.success("Day added!");
   }, [supabase, eventId, itineraryDays, event]);
 
   const addActivity = useCallback(
@@ -192,11 +199,16 @@ export function useEventDetail(eventId) {
         .select()
         .single();
       if (error) throw error;
-      setItineraryDays((prev) =>
-        prev.map((d) =>
+      let total = 0;
+      setItineraryDays((prev) => {
+        const next = prev.map((d) =>
           d.id === dayId ? { ...d, activities: [...d.activities, data] } : d
-        )
-      );
+        );
+        total = next.reduce((s, d) => s + d.activities.length, 0);
+        return next;
+      });
+      // "Planner Pro" — 5+ activities in the itinerary.
+      checkItineraryAchievement(total);
       return data;
     },
     [supabase, eventId]
@@ -248,6 +260,7 @@ export function useEventDetail(eventId) {
         .eq("id", dayId);
       if (error) throw error;
       setItineraryDays((prev) => prev.filter((d) => d.id !== dayId));
+      toast.success("Day deleted.");
     },
     [supabase]
   );
@@ -329,6 +342,8 @@ export function useEventDetail(eventId) {
       setExpenses((prev) =>
         [data, ...prev].sort((a, b) => (a.date < b.date ? 1 : -1))
       );
+      toast.success("Expense added!");
+      checkBudgetAchievement(); // "Budget Hero"
       return data;
     },
     [supabase, eventId]
@@ -355,6 +370,7 @@ export function useEventDetail(eventId) {
       const { error } = await supabase.from("expenses").delete().eq("id", id);
       if (error) throw error;
       setExpenses((prev) => prev.filter((e) => e.id !== id));
+      toast.success("Expense removed.");
     },
     [supabase]
   );
@@ -414,6 +430,11 @@ export function useEventDetail(eventId) {
         );
         throw error;
       }
+      // "Check Master" — every item complete (use the optimistic next state).
+      setChecklist((prev) => {
+        checkChecklistAchievement(prev);
+        return prev;
+      });
     },
     [supabase]
   );
@@ -444,6 +465,7 @@ export function useEventDetail(eventId) {
         .single();
       if (error) throw error;
       setMembers((prev) => [...prev, data]);
+      toast.success("Invitation added.");
       return data;
     },
     [supabase, eventId]
@@ -457,6 +479,7 @@ export function useEventDetail(eventId) {
         .eq("id", id);
       if (error) throw error;
       setMembers((prev) => prev.filter((m) => m.id !== id));
+      toast.success("Member removed.");
     },
     [supabase]
   );

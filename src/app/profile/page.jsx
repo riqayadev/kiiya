@@ -17,6 +17,12 @@ import { createClient } from "@/lib/supabase/client";
 import { t } from "@/utils/i18n";
 import { THEME_COLORS, applyThemeColor, hashPin } from "@/utils/theme";
 import { formatRupiah, formatDateShort } from "@/utils/format";
+import { toast } from "@/components/ui/Toast";
+import {
+  ACHIEVEMENTS,
+  getUnlocked,
+  ACHIEVEMENT_EVENT,
+} from "@/utils/achievements";
 
 function Card({ id, title, children }) {
   return (
@@ -59,6 +65,15 @@ export default function ProfilePage() {
   // PIN
   const [pin, setPin] = useState("");
   const [pinMsg, setPinMsg] = useState("");
+
+  // Achievements (read from localStorage after mount to avoid hydration drift)
+  const [unlocked, setUnlocked] = useState({});
+  useEffect(() => {
+    setUnlocked(getUnlocked());
+    const handler = () => setUnlocked(getUnlocked());
+    window.addEventListener(ACHIEVEMENT_EVENT, handler);
+    return () => window.removeEventListener(ACHIEVEMENT_EVENT, handler);
+  }, []);
 
   // ── Load profile ──
   useEffect(() => {
@@ -134,9 +149,11 @@ export default function ProfilePage() {
       if (error) throw error;
       setProfile((p) => ({ ...p, ...form }));
       setSavedInfo(true);
+      toast.success("Changes saved!");
       setTimeout(() => setSavedInfo(false), 2000);
     } catch (e) {
       setInfoError(e.message || "Failed to save.");
+      toast.error(e.message || "Failed to save.");
     } finally {
       setSavingInfo(false);
     }
@@ -158,10 +175,11 @@ export default function ProfilePage() {
       const url = data.publicUrl;
       await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
       setProfile((p) => ({ ...p, avatar_url: url }));
+      toast.success("Photo updated!");
     } catch (err) {
-      alert(
+      toast.error(
         err.message +
-          "\n(Make sure the 'avatars' storage bucket exists and is public.)"
+          " (Make sure the 'avatars' storage bucket exists and is public.)"
       );
     } finally {
       setUploading(false);
@@ -173,6 +191,7 @@ export default function ProfilePage() {
     applyThemeColor(key);
     setProfile((p) => ({ ...p, theme_color: key }));
     await supabase.from("profiles").update({ theme_color: key }).eq("id", user.id);
+    toast.success("Theme updated!");
   };
 
   const selectLang = async (next) => {
@@ -241,7 +260,7 @@ export default function ProfilePage() {
       .from("profiles")
       .update({ bio: "[account deletion requested]" })
       .eq("id", user.id);
-    alert("Account deletion requested. (Placeholder — requires admin action.)");
+    toast.info("Account deletion requested. (Placeholder — requires admin action.)");
   };
 
   if (loadingProfile) {
@@ -522,6 +541,45 @@ export default function ProfilePage() {
                 <p className="text-xs text-gray-500">{label}</p>
               </div>
             ))}
+          </div>
+        </Card>
+
+        {/* Achievements */}
+        <Card id="achievements" title="Achievements 🏆">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {ACHIEVEMENTS.map((a) => {
+              const isOn = !!unlocked[a.id];
+              return (
+                <div
+                  key={a.id}
+                  className={`flex items-center gap-3 rounded-xl border p-3 transition ${
+                    isOn
+                      ? "border-purple-100 bg-purple-50/50"
+                      : "border-gray-100 bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-xl ${
+                      isOn ? "bg-white shadow-sm" : "grayscale"
+                    }`}
+                  >
+                    {isOn ? a.emoji : "🔒"}
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      className={`truncate text-sm font-semibold ${
+                        isOn ? "text-kiiya-dark" : "text-gray-400"
+                      }`}
+                    >
+                      {isOn ? a.name : "???"}
+                    </p>
+                    <p className="truncate text-xs text-gray-400">
+                      {isOn ? a.desc : "Locked"}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </Card>
 

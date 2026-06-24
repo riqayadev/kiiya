@@ -151,7 +151,7 @@ export const translations = {
       accepted: "Accepted",
       declined: "Declined",
       remove: "Remove",
-      empty: "No members yet. Invite someone to collaborate.",
+      empty: "Planning solo? Invite someone to collaborate.",
       inviteSent: "Invitation added.",
     },
     profile: {
@@ -353,7 +353,7 @@ export const translations = {
       accepted: "Diterima",
       declined: "Ditolak",
       remove: "Hapus",
-      empty: "Belum ada anggota. Undang seseorang untuk berkolaborasi.",
+      empty: "Merencanakan sendiri? Undang seseorang untuk berkolaborasi.",
       inviteSent: "Undangan ditambahkan.",
     },
     profile: {

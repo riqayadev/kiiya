@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Crown, Pencil, Eye, UserPlus, Loader2, X } from "lucide-react";
 import { useLang } from "@/hooks/useLang";
 import { t } from "@/utils/i18n";
+import { toast } from "@/components/ui/Toast";
 
 const ROLE_META = {
   owner: { icon: Crown, badge: "bg-amber-100 text-amber-700", labelKey: "owner" },
@@ -159,7 +160,7 @@ export default function MembersTab({
                 member={m}
                 canRemove={m.role !== "owner"}
                 onRemove={(id) =>
-                  removeMember(id).catch((e) => alert(e.message))
+                  removeMember(id).catch((e) => toast.error(e.message))
                 }
               />
             ))

@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "@/components/ui/Toast";
+import { checkEventAchievements } from "@/utils/achievements";
 
 export function useEvents() {
   const [events, setEvents] = useState([]);
@@ -47,7 +49,10 @@ export function useEvents() {
       .single();
 
     if (error) throw error;
-    setEvents((prev) => [data, ...prev]);
+    const next = [data, ...events];
+    setEvents(next);
+    toast.success("Event created!");
+    checkEventAchievements(next);
     return data;
   };
 
@@ -61,6 +66,7 @@ export function useEvents() {
 
     if (error) throw error;
     setEvents((prev) => prev.map((e) => (e.id === id ? data : e)));
+    toast.success("Changes saved!");
     return data;
   };
 
@@ -72,6 +78,7 @@ export function useEvents() {
 
     if (error) throw error;
     setEvents((prev) => prev.filter((e) => e.id !== id));
+    toast.success("Event deleted.");
   };
 
   return {

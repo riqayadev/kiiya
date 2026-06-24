@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { getCategory, ACTIVITY_CATEGORIES } from "@/utils/categories";
 import { formatRupiah, formatDateShort } from "@/utils/format";
+import { toast } from "@/components/ui/Toast";
 
 function timeValue(time) {
   // DB returns "HH:MM:SS"; <input type=time> wants "HH:MM".
@@ -234,7 +235,7 @@ function DayCard({
       await onAddActivity({ title, category: "activity" });
       newInputRef.current?.focus();
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -281,14 +282,14 @@ function DayCard({
             registerInput={(el) => (rowRefs.current[activity.id] = el)}
             onUpdate={(updates) =>
               onUpdateActivity(activity.id, updates).catch((e) =>
-                alert(e.message)
+                toast.error(e.message)
               )
             }
             onToggle={(val) =>
-              onToggleActivity(activity.id, val).catch((e) => alert(e.message))
+              onToggleActivity(activity.id, val).catch((e) => toast.error(e.message))
             }
             onDelete={() =>
-              onDeleteActivity(activity.id).catch((e) => alert(e.message))
+              onDeleteActivity(activity.id).catch((e) => toast.error(e.message))
             }
             onEnter={() => newInputRef.current?.focus()}
           />
@@ -335,7 +336,7 @@ export default function ItineraryTab({
     try {
       await addDay();
     } catch (err) {
-      alert(err.message || "Failed to add day");
+      toast.error(err.message || "Failed to add day");
     } finally {
       setAddingDay(false);
     }
@@ -365,7 +366,7 @@ export default function ItineraryTab({
           onDeleteActivity={(id) => deleteActivity(day.id, id)}
           onUpdateDay={(updates) => updateDay(day.id, updates)}
           onDeleteDay={() =>
-            deleteDay(day.id).catch((e) => alert(e.message))
+            deleteDay(day.id).catch((e) => toast.error(e.message))
           }
         />
       ))}

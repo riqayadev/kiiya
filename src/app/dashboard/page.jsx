@@ -21,6 +21,8 @@ import { eventColors, statusColors } from "@/utils/eventColors";
 import { formatRupiah, formatDateRange, getTimeGreeting } from "@/utils/format";
 import NewEventModal from "@/components/ui/NewEventModal";
 import EditEventModal from "@/components/ui/EditEventModal";
+import OnboardingModal from "@/components/ui/OnboardingModal";
+import { toast } from "@/components/ui/Toast";
 
 const FILTERS = ["all", "upcoming", "ongoing", "completed"];
 const STATUSES = ["upcoming", "ongoing", "completed", "archived"];
@@ -33,7 +35,7 @@ function EventsSkeleton() {
   return (
     <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="h-64 animate-pulse rounded-2xl bg-gray-100" />
+        <div key={i} className="kiiya-skeleton h-64 rounded-2xl" />
       ))}
     </div>
   );
@@ -156,6 +158,19 @@ export default function Dashboard() {
   const [filter, setFilter] = useState("all");
   const [showNewEventModal, setShowNewEventModal] = useState(false);
   const [editEvent, setEditEvent] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Show onboarding once, on first visit.
+  useEffect(() => {
+    if (!localStorage.getItem("kiiya_onboarded")) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const finishOnboarding = () => {
+    localStorage.setItem("kiiya_onboarded", "1");
+    setShowOnboarding(false);
+  };
 
   const stats = useMemo(
     () => ({
@@ -185,7 +200,7 @@ export default function Dashboard() {
     try {
       await deleteEvent(event.id);
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -294,7 +309,7 @@ export default function Dashboard() {
                   onEdit={() => setEditEvent(event)}
                   onStatus={(status) =>
                     updateEvent(event.id, { status }).catch((e) =>
-                      alert(e.message)
+                      toast.error(e.message)
                     )
                   }
                   onDelete={() => handleDelete(event)}
@@ -367,6 +382,16 @@ export default function Dashboard() {
         event={editEvent}
         onClose={() => setEditEvent(null)}
         onSubmit={(updates) => updateEvent(editEvent.id, updates)}
+      />
+
+      {/* First-run onboarding */}
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={finishOnboarding}
+        onCreateEvent={() => {
+          finishOnboarding();
+          setShowNewEventModal(true);
+        }}
       />
     </>
   );
