@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   CalendarDays,
+  UserCircle,
   Settings,
   LogOut,
   Menu,
@@ -19,6 +20,7 @@ import LanguageToggle from "@/components/ui/LanguageToggle";
 const NAV_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, key: "dashboard.nav.dashboard" },
   { to: "/calendar", icon: CalendarDays, key: "dashboard.nav.calendar" },
+  { to: "/profile", icon: UserCircle, key: "dashboard.nav.profile" },
   { to: "/settings", icon: Settings, key: "dashboard.nav.settings" },
 ];
 

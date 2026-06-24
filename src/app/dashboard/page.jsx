@@ -1,7 +1,18 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Calendar, Clock, Zap, CheckCircle, Plus, AlertCircle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Zap,
+  CheckCircle,
+  Plus,
+  AlertCircle,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  ChevronRight,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLang } from "@/hooks/useLang";
 import { useEvents } from "@/hooks/useEvents";
@@ -9,8 +20,10 @@ import { t } from "@/utils/i18n";
 import { eventColors, statusColors } from "@/utils/eventColors";
 import { formatRupiah, formatDateRange, getTimeGreeting } from "@/utils/format";
 import NewEventModal from "@/components/ui/NewEventModal";
+import EditEventModal from "@/components/ui/EditEventModal";
 
 const FILTERS = ["all", "upcoming", "ongoing", "completed"];
+const STATUSES = ["upcoming", "ongoing", "completed", "archived"];
 
 function getDisplayName(user) {
   return user?.user_metadata?.full_name || user?.email?.split("@")[0] || "there";
@@ -26,12 +39,123 @@ function EventsSkeleton() {
   );
 }
 
+function CardMenu({ event, onEdit, onStatus, onDelete }) {
+  const [open, setOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+        setStatusOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
+  const stop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  return (
+    <div className="absolute right-2 top-2 z-10" ref={ref}>
+      <button
+        onClick={(e) => {
+          stop(e);
+          setOpen((o) => !o);
+        }}
+        aria-label="Event menu"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-kiiya-dark opacity-0 shadow-sm backdrop-blur transition hover:bg-white group-hover:opacity-100"
+      >
+        <MoreVertical className="h-4 w-4" />
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 top-9 w-48 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg"
+          onClick={stop}
+        >
+          <button
+            onClick={(e) => {
+              stop(e);
+              setOpen(false);
+              onEdit();
+            }}
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50"
+          >
+            <Pencil className="h-4 w-4" />
+            {t("eventDetail.edit")}
+          </button>
+
+          {/* Change status with submenu */}
+          <div
+            className="relative"
+            onMouseEnter={() => setStatusOpen(true)}
+            onMouseLeave={() => setStatusOpen(false)}
+          >
+            <button
+              onClick={(e) => {
+                stop(e);
+                setStatusOpen((s) => !s);
+              }}
+              className="flex w-full items-center justify-between px-4 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50"
+            >
+              <span>{t("editEvent.status")}</span>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </button>
+            {statusOpen && (
+              <div className="absolute right-full top-0 mr-1 w-40 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg">
+                {STATUSES.map((s) => (
+                  <button
+                    key={s}
+                    onClick={(e) => {
+                      stop(e);
+                      setOpen(false);
+                      setStatusOpen(false);
+                      if (s !== event.status) onStatus(s);
+                    }}
+                    className={`flex w-full items-center px-4 py-2 text-sm transition hover:bg-purple-50 ${
+                      s === event.status
+                        ? "font-semibold text-kiiya-primary"
+                        : "text-kiiya-dark"
+                    }`}
+                  >
+                    {t(`dashboard.status.${s}`)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={(e) => {
+              stop(e);
+              setOpen(false);
+              onDelete();
+            }}
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-500 transition hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   useLang();
   const { user } = useAuth();
-  const { events, loading, error, fetchEvents, createEvent } = useEvents();
+  const { events, loading, error, fetchEvents, createEvent, updateEvent, deleteEvent } =
+    useEvents();
   const [filter, setFilter] = useState("all");
   const [showNewEventModal, setShowNewEventModal] = useState(false);
+  const [editEvent, setEditEvent] = useState(null);
 
   const stats = useMemo(
     () => ({
@@ -55,6 +179,15 @@ export default function Dashboard() {
     { icon: Zap, value: stats.ongoing, label: t("dashboard.ongoing") },
     { icon: CheckCircle, value: stats.completed, label: t("dashboard.stats.completed") },
   ];
+
+  const handleDelete = async (event) => {
+    if (!confirm(`Delete "${event.title}"? This cannot be undone.`)) return;
+    try {
+      await deleteEvent(event.id);
+    } catch (e) {
+      alert(e.message);
+    }
+  };
 
   return (
     <>
@@ -113,7 +246,7 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* D) CONTENT: loading / error / empty / grid */}
+      {/* D) CONTENT */}
       {loading ? (
         <EventsSkeleton />
       ) : error ? (
@@ -152,44 +285,69 @@ export default function Dashboard() {
           {filtered.map((event) => {
             const colors = eventColors[event.type] ?? eventColors.custom;
             return (
-              <Link
+              <div
                 key={event.id}
-                href={`/dashboard/events/${event.id}`}
-                className="block cursor-pointer overflow-hidden rounded-2xl border border-purple-100 bg-white transition hover:scale-[1.01] hover:shadow-lg"
+                className="group relative overflow-hidden rounded-2xl border border-purple-100 bg-white transition hover:shadow-lg"
               >
-                {/* Cover */}
-                <div
-                  className={`flex h-28 items-center justify-center bg-gradient-to-br text-5xl ${colors.gradient}`}
+                <CardMenu
+                  event={event}
+                  onEdit={() => setEditEvent(event)}
+                  onStatus={(status) =>
+                    updateEvent(event.id, { status }).catch((e) =>
+                      alert(e.message)
+                    )
+                  }
+                  onDelete={() => handleDelete(event)}
+                />
+                <Link
+                  href={`/dashboard/events/${event.id}`}
+                  className="block cursor-pointer"
                 >
-                  {event.cover_emoji || colors.icon}
-                </div>
+                  {/* Cover */}
+                  {event.cover_image_url ? (
+                    <div className="relative h-28">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={event.cover_image_url}
+                        alt={event.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className={`flex h-28 items-center justify-center bg-gradient-to-br text-5xl ${colors.gradient}`}
+                    >
+                      {event.cover_emoji || colors.icon}
+                    </div>
+                  )}
 
-                <div className="p-5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${statusColors[event.status]}`}
-                    >
-                      {t(`dashboard.status.${event.status}`)}
-                    </span>
-                    <span
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold ${colors.badge} border-transparent`}
-                    >
-                      {colors.icon} {t(`dashboard.eventTypes.${event.type}`)}
-                    </span>
+                  <div className="p-5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${statusColors[event.status]}`}
+                      >
+                        {t(`dashboard.status.${event.status}`)}
+                      </span>
+                      <span
+                        className={`rounded-full border px-3 py-1 text-xs font-semibold ${colors.badge} border-transparent`}
+                      >
+                        {colors.icon} {t(`dashboard.eventTypes.${event.type}`)}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-3 text-lg font-semibold text-kiiya-dark">
+                      {event.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      {formatDateRange(event.start_date, event.end_date)}
+                    </p>
+
+                    <p className="mt-3 text-sm font-semibold text-kiiya-dark">
+                      {formatRupiah(event.budget)}
+                    </p>
                   </div>
-
-                  <h3 className="mt-3 text-lg font-semibold text-kiiya-dark">
-                    {event.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {formatDateRange(event.start_date, event.end_date)}
-                  </p>
-
-                  <p className="mt-3 text-sm font-semibold text-kiiya-dark">
-                    {formatRupiah(event.budget)}
-                  </p>
-                </div>
-              </Link>
+                </Link>
+              </div>
             );
           })}
         </div>
@@ -201,6 +359,14 @@ export default function Dashboard() {
         onClose={() => setShowNewEventModal(false)}
         onSuccess={() => fetchEvents()}
         createEvent={createEvent}
+      />
+
+      {/* Edit Event modal */}
+      <EditEventModal
+        isOpen={!!editEvent}
+        event={editEvent}
+        onClose={() => setEditEvent(null)}
+        onSubmit={(updates) => updateEvent(editEvent.id, updates)}
       />
     </>
   );

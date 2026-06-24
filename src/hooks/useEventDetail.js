@@ -14,6 +14,7 @@ export function useEventDetail(eventId) {
   const [itineraryDays, setItineraryDays] = useState([]); // each day has .activities[]
   const [expenses, setExpenses] = useState([]);
   const [checklist, setChecklist] = useState([]);
+  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -91,27 +92,49 @@ export function useEventDetail(eventId) {
     [supabase]
   );
 
+  const fetchMembers = useCallback(
+    async (id) => {
+      const { data, error } = await supabase
+        .from("event_members")
+        .select("*")
+        .eq("event_id", id)
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    [supabase]
+  );
+
   const loadAll = useCallback(async () => {
     if (!eventId) return;
     setLoading(true);
     setError(null);
     try {
-      const [ev, days, exp, chk] = await Promise.all([
+      const [ev, days, exp, chk, mem] = await Promise.all([
         fetchEvent(eventId),
         fetchItinerary(eventId),
         fetchExpenses(eventId),
         fetchChecklist(eventId),
+        fetchMembers(eventId),
       ]);
       setEvent(ev);
       setItineraryDays(days);
       setExpenses(exp);
       setChecklist(chk);
+      setMembers(mem);
     } catch (err) {
       setError(err.message || "Failed to load event");
     } finally {
       setLoading(false);
     }
-  }, [eventId, fetchEvent, fetchItinerary, fetchExpenses, fetchChecklist]);
+  }, [
+    eventId,
+    fetchEvent,
+    fetchItinerary,
+    fetchExpenses,
+    fetchChecklist,
+    fetchMembers,
+  ]);
 
   useEffect(() => {
     loadAll();
@@ -121,6 +144,22 @@ export function useEventDetail(eventId) {
   const totalSpent = useMemo(
     () => expenses.reduce((sum, e) => sum + (e.amount || 0), 0),
     [expenses]
+  );
+
+  // ── Event mutation ──────────────────────────────────────────
+  const updateEvent = useCallback(
+    async (updates) => {
+      const { data, error } = await supabase
+        .from("events")
+        .update(updates)
+        .eq("id", eventId)
+        .select()
+        .single();
+      if (error) throw error;
+      setEvent(data);
+      return data;
+    },
+    [supabase, eventId]
   );
 
   // ── Itinerary mutations ─────────────────────────────────────
@@ -158,8 +197,59 @@ export function useEventDetail(eventId) {
           d.id === dayId ? { ...d, activities: [...d.activities, data] } : d
         )
       );
+      return data;
     },
     [supabase, eventId]
+  );
+
+  // Generic field patch for an activity (title, time, cost, category, etc.).
+  const updateActivity = useCallback(
+    async (dayId, activityId, updates) => {
+      setItineraryDays((prev) =>
+        prev.map((d) =>
+          d.id === dayId
+            ? {
+                ...d,
+                activities: d.activities.map((a) =>
+                  a.id === activityId ? { ...a, ...updates } : a
+                ),
+              }
+            : d
+        )
+      );
+      const { error } = await supabase
+        .from("itinerary_activities")
+        .update(updates)
+        .eq("id", activityId);
+      if (error) throw error;
+    },
+    [supabase]
+  );
+
+  const updateDay = useCallback(
+    async (dayId, updates) => {
+      setItineraryDays((prev) =>
+        prev.map((d) => (d.id === dayId ? { ...d, ...updates } : d))
+      );
+      const { error } = await supabase
+        .from("itinerary_days")
+        .update(updates)
+        .eq("id", dayId);
+      if (error) throw error;
+    },
+    [supabase]
+  );
+
+  const deleteDay = useCallback(
+    async (dayId) => {
+      const { error } = await supabase
+        .from("itinerary_days")
+        .delete()
+        .eq("id", dayId);
+      if (error) throw error;
+      setItineraryDays((prev) => prev.filter((d) => d.id !== dayId));
+    },
+    [supabase]
   );
 
   const toggleActivity = useCallback(
@@ -239,8 +329,25 @@ export function useEventDetail(eventId) {
       setExpenses((prev) =>
         [data, ...prev].sort((a, b) => (a.date < b.date ? 1 : -1))
       );
+      return data;
     },
     [supabase, eventId]
+  );
+
+  const updateExpense = useCallback(
+    async (id, updates) => {
+      setExpenses((prev) =>
+        prev
+          .map((e) => (e.id === id ? { ...e, ...updates } : e))
+          .sort((a, b) => (a.date < b.date ? 1 : -1))
+      );
+      const { error } = await supabase
+        .from("expenses")
+        .update(updates)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    [supabase]
   );
 
   const deleteExpense = useCallback(
@@ -255,15 +362,38 @@ export function useEventDetail(eventId) {
   // ── Checklist mutations ─────────────────────────────────────
   const addChecklistItem = useCallback(
     async (title, category) => {
+      const sortOrder = checklist.length;
       const { data, error } = await supabase
         .from("checklists")
-        .insert([{ event_id: eventId, title, category: category || "general" }])
+        .insert([
+          {
+            event_id: eventId,
+            title: title ?? "",
+            category: category || "general",
+            sort_order: sortOrder,
+          },
+        ])
         .select()
         .single();
       if (error) throw error;
       setChecklist((prev) => [...prev, data]);
+      return data;
     },
-    [supabase, eventId]
+    [supabase, eventId, checklist.length]
+  );
+
+  const updateChecklistItem = useCallback(
+    async (id, updates) => {
+      setChecklist((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, ...updates } : c))
+      );
+      const { error } = await supabase
+        .from("checklists")
+        .update(updates)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    [supabase]
   );
 
   const toggleChecklistItem = useCallback(
@@ -297,11 +427,46 @@ export function useEventDetail(eventId) {
     [supabase]
   );
 
+  // ── Member mutations ────────────────────────────────────────
+  const addMember = useCallback(
+    async (email, role) => {
+      const { data, error } = await supabase
+        .from("event_members")
+        .insert([
+          {
+            event_id: eventId,
+            email: email.trim(),
+            role: role || "viewer",
+            status: "pending",
+          },
+        ])
+        .select()
+        .single();
+      if (error) throw error;
+      setMembers((prev) => [...prev, data]);
+      return data;
+    },
+    [supabase, eventId]
+  );
+
+  const removeMember = useCallback(
+    async (id) => {
+      const { error } = await supabase
+        .from("event_members")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+      setMembers((prev) => prev.filter((m) => m.id !== id));
+    },
+    [supabase]
+  );
+
   return {
     event,
     itineraryDays,
     expenses,
     checklist,
+    members,
     loading,
     error,
     totalSpent,
@@ -311,17 +476,28 @@ export function useEventDetail(eventId) {
     fetchItinerary,
     fetchExpenses,
     fetchChecklist,
+    fetchMembers,
+    // event
+    updateEvent,
     // itinerary
     addDay,
     addActivity,
+    updateActivity,
     toggleActivity,
     deleteActivity,
+    updateDay,
+    deleteDay,
     // expenses
     addExpense,
+    updateExpense,
     deleteExpense,
     // checklist
     addChecklistItem,
+    updateChecklistItem,
     toggleChecklistItem,
     deleteChecklistItem,
+    // members
+    addMember,
+    removeMember,
   };
 }

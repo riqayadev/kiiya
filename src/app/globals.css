@@ -26,3 +26,49 @@ body {
 .animate-float {
   animation: kiiya-float 5s ease-in-out infinite;
 }
+
+/* ── FullCalendar brand overrides (scoped to .kiiya-calendar) ── */
+.kiiya-calendar {
+  --fc-border-color: #f1edff;
+  --fc-today-bg-color: #f3e8ff;
+  --fc-neutral-bg-color: #faf8ff;
+  --fc-page-bg-color: #ffffff;
+  --fc-event-border-color: transparent;
+}
+
+.kiiya-calendar .fc .fc-col-header-cell-cushion {
+  padding: 8px 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.kiiya-calendar .fc .fc-daygrid-day-number {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1e1b2e;
+  padding: 6px;
+}
+
+.kiiya-calendar .fc .fc-day-today .fc-daygrid-day-number {
+  color: #7c6ef5;
+}
+
+.kiiya-calendar .fc-event {
+  border-radius: 9999px;
+  font-weight: 500;
+  padding: 1px 2px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.kiiya-calendar .fc .fc-list-event:hover td {
+  background-color: #f7f5ff;
+}
+
+.kiiya-calendar .fc-theme-standard td,
+.kiiya-calendar .fc-theme-standard th {
+  border-color: #f1edff;
+}

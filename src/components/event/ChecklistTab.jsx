@@ -1,30 +1,161 @@
 "use client";
-import { useMemo, useState } from "react";
-import { Plus, X, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Plus, Trash2, GripVertical, FolderPlus } from "lucide-react";
 
-function ChecklistRow({ item, onToggle, onDelete }) {
+function ChecklistRow({
+  item,
+  onUpdate,
+  onToggle,
+  onDelete,
+  onEnter,
+  registerInput,
+  dragHandlers,
+}) {
+  const [label, setLabel] = useState(item.title || "");
+  useEffect(() => setLabel(item.title || ""), [item.title]);
+
+  const save = () => {
+    const next = label.trim();
+    if (next !== (item.title || "")) onUpdate({ title: next });
+  };
+
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-gray-100 p-3">
+    <div
+      className="group flex items-center gap-2 rounded-lg px-1 py-1 transition hover:bg-purple-50/40"
+      draggable
+      {...dragHandlers}
+    >
+      <span className="cursor-grab text-gray-300 opacity-0 transition group-hover:opacity-100">
+        <GripVertical className="h-4 w-4" />
+      </span>
       <input
         type="checkbox"
         checked={!!item.is_completed}
-        onChange={(e) => onToggle(item.id, e.target.checked)}
+        onChange={(e) => onToggle(e.target.checked)}
         className="h-4 w-4 flex-shrink-0 accent-kiiya-primary"
       />
-      <span
-        className={`min-w-0 flex-1 text-sm font-medium text-kiiya-dark ${
+      <input
+        ref={registerInput}
+        value={label}
+        onChange={(e) => setLabel(e.target.value)}
+        onBlur={save}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            save();
+            onEnter();
+          } else if (e.key === "Backspace" && label === "") {
+            e.preventDefault();
+            onDelete();
+          }
+        }}
+        placeholder="List item…"
+        className={`min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm font-medium text-kiiya-dark outline-none transition hover:border-gray-200 focus:border-kiiya-primary ${
           item.is_completed ? "line-through opacity-50" : ""
         }`}
-      >
-        {item.title}
-      </span>
+      />
       <button
-        onClick={() => onDelete(item.id)}
+        type="button"
+        onClick={onDelete}
         aria-label="Delete item"
-        className="flex-shrink-0 rounded-md p-1 text-gray-300 transition hover:bg-red-50 hover:text-red-500"
+        className="flex-shrink-0 rounded p-1 text-gray-300 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
       >
-        <X className="h-4 w-4" />
+        <Trash2 className="h-4 w-4" />
       </button>
+    </div>
+  );
+}
+
+function Section({
+  name,
+  items,
+  onAdd,
+  onUpdateItem,
+  onToggleItem,
+  onDeleteItem,
+  onRenameSection,
+  onReorder,
+}) {
+  const [newTitle, setNewTitle] = useState("");
+  const [sectionName, setSectionName] = useState(name);
+  const newRef = useRef(null);
+  const dragIndex = useRef(null);
+
+  useEffect(() => setSectionName(name), [name]);
+
+  const commitNew = async () => {
+    const title = newTitle.trim();
+    if (!title) return;
+    setNewTitle("");
+    try {
+      await onAdd(title);
+      newRef.current?.focus();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-purple-100 bg-white p-5">
+      <input
+        value={sectionName}
+        onChange={(e) => setSectionName(e.target.value)}
+        onBlur={() => {
+          const next = sectionName.trim() || "general";
+          if (next !== name) onRenameSection(next);
+        }}
+        className="mb-2 w-full rounded-md border border-transparent bg-transparent px-1 text-sm font-bold uppercase tracking-wide text-gray-400 outline-none transition hover:border-gray-200 focus:border-kiiya-primary"
+      />
+      <div className="space-y-0.5">
+        {items.map((item, idx) => (
+          <ChecklistRow
+            key={item.id}
+            item={item}
+            onUpdate={(u) =>
+              onUpdateItem(item.id, u).catch((e) => alert(e.message))
+            }
+            onToggle={(val) =>
+              onToggleItem(item.id, val).catch((e) => alert(e.message))
+            }
+            onDelete={() =>
+              onDeleteItem(item.id).catch((e) => alert(e.message))
+            }
+            onEnter={() => newRef.current?.focus()}
+            dragHandlers={{
+              onDragStart: () => (dragIndex.current = idx),
+              onDragOver: (e) => e.preventDefault(),
+              onDrop: () => {
+                if (dragIndex.current !== null && dragIndex.current !== idx) {
+                  onReorder(dragIndex.current, idx);
+                }
+                dragIndex.current = null;
+              },
+            }}
+          />
+        ))}
+
+        {/* Add item row */}
+        <div className="flex items-center gap-2 px-1 py-1">
+          <span className="w-4 flex-shrink-0" />
+          <Plus className="h-4 w-4 flex-shrink-0 text-gray-300" />
+          <input
+            ref={newRef}
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commitNew();
+              } else if (e.key === "Escape") {
+                setNewTitle("");
+              }
+            }}
+            onBlur={commitNew}
+            placeholder="Add item…"
+            className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm text-gray-500 outline-none transition hover:border-gray-200 focus:border-kiiya-primary"
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -32,40 +163,44 @@ function ChecklistRow({ item, onToggle, onDelete }) {
 export default function ChecklistTab({
   checklist,
   addChecklistItem,
+  updateChecklistItem,
   toggleChecklistItem,
   deleteChecklistItem,
 }) {
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
-  const [saving, setSaving] = useState(false);
-
   const completed = checklist.filter((c) => c.is_completed).length;
   const total = checklist.length;
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-  // Group by category (preserve first-seen order).
-  const groups = useMemo(() => {
-    const map = new Map();
-    for (const item of checklist) {
-      const key = item.category || "general";
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push(item);
+  // Group by category (section), preserving first-seen order.
+  const groups = [];
+  const seen = new Map();
+  for (const item of checklist) {
+    const key = item.category || "general";
+    if (!seen.has(key)) {
+      seen.set(key, []);
+      groups.push([key, seen.get(key)]);
     }
-    return Array.from(map.entries());
-  }, [checklist]);
+    seen.get(key).push(item);
+  }
 
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-    setSaving(true);
+  const handleReorder = (items, from, to) => {
+    const reordered = [...items];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+    // Persist new sort_order for the section.
+    reordered.forEach((it, i) => {
+      if (it.sort_order !== i)
+        updateChecklistItem(it.id, { sort_order: i }).catch(() => {});
+    });
+  };
+
+  const addSection = async () => {
+    const name = prompt("Section name (e.g. Packing, Documents)");
+    if (!name || !name.trim()) return;
     try {
-      await addChecklistItem(title.trim(), category.trim() || "general");
-      setTitle("");
-      setCategory("");
-    } catch (err) {
-      alert(err.message || "Failed to add item");
-    } finally {
-      setSaving(false);
+      await addChecklistItem("", name.trim());
+    } catch (e) {
+      alert(e.message);
     }
   };
 
@@ -87,8 +222,8 @@ export default function ChecklistTab({
         </div>
       </div>
 
-      {/* Grouped list */}
-      {total === 0 ? (
+      {/* Empty state */}
+      {total === 0 && (
         <div className="rounded-2xl border border-dashed border-purple-200 bg-white py-12 text-center">
           <span className="text-4xl">✅</span>
           <p className="mt-3 font-semibold text-kiiya-dark">
@@ -98,65 +233,49 @@ export default function ChecklistTab({
             Add items below to keep track of what&apos;s left to do.
           </p>
         </div>
-      ) : (
-        groups.map(([cat, items]) => (
-          <div
-            key={cat}
-            className="rounded-2xl border border-purple-100 bg-white p-5"
-          >
-            <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-400">
-              {cat}
-            </h3>
-            <div className="space-y-2">
-              {items.map((item) => (
-                <ChecklistRow
-                  key={item.id}
-                  item={item}
-                  onToggle={(id, val) =>
-                    toggleChecklistItem(id, val).catch((e) => alert(e.message))
-                  }
-                  onDelete={(id) =>
-                    deleteChecklistItem(id).catch((e) => alert(e.message))
-                  }
-                />
-              ))}
-            </div>
-          </div>
-        ))
       )}
 
-      {/* Add item */}
-      <form
-        onSubmit={handleAdd}
-        className="flex flex-col gap-2 rounded-2xl border border-purple-100 bg-white p-4 sm:flex-row"
+      {/* Sections */}
+      {groups.map(([name, items]) => (
+        <Section
+          key={name}
+          name={name}
+          items={items}
+          onAdd={(title) => addChecklistItem(title, name)}
+          onUpdateItem={updateChecklistItem}
+          onToggleItem={toggleChecklistItem}
+          onDeleteItem={deleteChecklistItem}
+          onRenameSection={(next) =>
+            items.forEach((it) =>
+              updateChecklistItem(it.id, { category: next }).catch(() => {})
+            )
+          }
+          onReorder={(from, to) => handleReorder(items, from, to)}
+        />
+      ))}
+
+      {/* If no sections yet, still offer a default add row */}
+      {groups.length === 0 && (
+        <Section
+          name="general"
+          items={[]}
+          onAdd={(title) => addChecklistItem(title, "general")}
+          onUpdateItem={updateChecklistItem}
+          onToggleItem={toggleChecklistItem}
+          onDeleteItem={deleteChecklistItem}
+          onRenameSection={() => {}}
+          onReorder={() => {}}
+        />
+      )}
+
+      {/* Add section */}
+      <button
+        onClick={addSection}
+        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-purple-200 bg-white py-3 text-sm font-semibold text-kiiya-primary transition hover:border-kiiya-primary/50 hover:bg-purple-50/40"
       >
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Add an item…"
-          className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20"
-        />
-        <input
-          type="text"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          placeholder="Category"
-          className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20 sm:w-40"
-        />
-        <button
-          type="submit"
-          disabled={saving || !title.trim()}
-          className="flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-        >
-          {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Plus className="h-4 w-4" />
-          )}
-          Add Item
-        </button>
-      </form>
+        <FolderPlus className="h-4 w-4" />
+        Add Section
+      </button>
     </div>
   );
 }
