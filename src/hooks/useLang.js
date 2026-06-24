@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { getLang, setLang, LANG_EVENT } from "../utils/i18n";
 
@@ -6,9 +7,12 @@ import { getLang, setLang, LANG_EVENT } from "../utils/i18n";
  * when the user toggles EN/ID anywhere in the app.
  */
 export function useLang() {
-  const [lang, setLangState] = useState(getLang());
+  const [lang, setLangState] = useState("en");
 
+  // Read the persisted language only after mount to keep server/client
+  // markup identical (avoids hydration mismatch).
   useEffect(() => {
+    setLangState(getLang());
     const handler = () => setLangState(getLang());
     window.addEventListener(LANG_EVENT, handler);
     return () => window.removeEventListener(LANG_EVENT, handler);

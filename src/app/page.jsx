@@ -1,9 +1,10 @@
+"use client";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Map, Wallet, Camera, Users, Menu, X } from "lucide-react";
-import { useLang } from "../hooks/useLang";
-import { t } from "../utils/i18n";
-import LanguageToggle from "../components/ui/LanguageToggle";
+import { useLang } from "@/hooks/useLang";
+import { t } from "@/utils/i18n";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 
 const FEATURE_ICONS = [Map, Wallet, Camera, Users];
 
@@ -33,7 +34,7 @@ export default function Landing() {
       {/* ── A) NAVBAR ───────────────────────────── */}
       <header className="sticky top-0 z-50 border-b border-purple-100 bg-white/80 backdrop-blur-md">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link to="/" className="text-xl font-bold text-kiiya-primary">
+          <Link href="/" className="text-xl font-bold text-kiiya-primary">
             ✦ Kiiya
           </Link>
 
@@ -43,13 +44,13 @@ export default function Landing() {
 
           <div className="hidden items-center gap-3 md:flex">
             <Link
-              to="/login"
+              href="/login"
               className="rounded-full border border-kiiya-primary px-5 py-2 text-sm font-semibold text-kiiya-primary transition hover:bg-kiiya-primary/10"
             >
               {t("nav.login")}
             </Link>
             <Link
-              to="/register"
+              href="/register"
               className="rounded-full bg-kiiya-primary px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
             >
               {t("nav.getStarted")}
@@ -71,13 +72,13 @@ export default function Landing() {
           <div className="space-y-3 border-t border-purple-100 bg-white px-6 py-4 md:hidden">
             <LanguageToggle />
             <Link
-              to="/login"
+              href="/login"
               className="block rounded-full border border-kiiya-primary px-5 py-2 text-center text-sm font-semibold text-kiiya-primary"
             >
               {t("nav.login")}
             </Link>
             <Link
-              to="/register"
+              href="/register"
               className="block rounded-full bg-kiiya-primary px-5 py-2 text-center text-sm font-semibold text-white"
             >
               {t("nav.getStarted")}
@@ -101,7 +102,7 @@ export default function Landing() {
             </p>
             <div className="mt-8 flex flex-col items-center gap-2 md:items-start">
               <Link
-                to="/register"
+                href="/register"
                 className="inline-block rounded-full bg-kiiya-primary px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-kiiya-primary/30 transition hover:scale-105 hover:opacity-95"
               >
                 {t("hero.cta")}
@@ -187,7 +188,7 @@ export default function Landing() {
           <h2 className="text-3xl font-bold md:text-4xl">{t("cta.title")}</h2>
           <p className="mt-4 text-lg text-white/90">{t("cta.sub")}</p>
           <Link
-            to="/register"
+            href="/register"
             className="mt-8 inline-block rounded-full bg-white px-8 py-4 text-lg font-semibold text-kiiya-primary shadow-lg transition hover:scale-105"
           >
             {t("cta.button")}

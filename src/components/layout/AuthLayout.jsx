@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
-import LanguageToggle from "../ui/LanguageToggle";
+"use client";
+import Link from "next/link";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 
 /**
  * Split-screen shell for the auth pages.
@@ -10,7 +11,7 @@ export default function AuthLayout({ quote, children }) {
     <div className="flex min-h-screen">
       {/* Left brand panel */}
       <div className="relative hidden w-1/2 flex-col justify-between bg-gradient-to-br from-kiiya-primary to-kiiya-romantic p-12 text-white md:flex">
-        <Link to="/" className="text-2xl font-bold">
+        <Link href="/" className="text-2xl font-bold">
           ✦ Kiiya
         </Link>
         <div>
@@ -29,7 +30,7 @@ export default function AuthLayout({ quote, children }) {
       {/* Right form area */}
       <div className="flex w-full flex-col bg-white md:w-1/2">
         <div className="flex items-center justify-between px-6 py-6">
-          <Link to="/" className="text-xl font-bold text-kiiya-primary md:hidden">
+          <Link href="/" className="text-xl font-bold text-kiiya-primary md:hidden">
             ✦ Kiiya
           </Link>
           <div className="ml-auto">

@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -7,11 +9,12 @@ import {
   LogOut,
   Menu,
   X,
+  Loader2,
 } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
-import { useLang } from "../../hooks/useLang";
-import { t } from "../../utils/i18n";
-import LanguageToggle from "../ui/LanguageToggle";
+import { useAuth } from "@/hooks/useAuth";
+import { useLang } from "@/hooks/useLang";
+import { t } from "@/utils/i18n";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 
 const NAV_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, key: "dashboard.nav.dashboard" },
@@ -21,9 +24,7 @@ const NAV_ITEMS = [
 
 function getDisplayName(user) {
   return (
-    user?.user_metadata?.full_name ||
-    user?.email?.split("@")[0] ||
-    "Guest"
+    user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Guest"
   );
 }
 
@@ -36,20 +37,13 @@ function getInitials(name) {
     .toUpperCase();
 }
 
-function SidebarContent({ user, signOut, onNavigate }) {
+function SidebarContent({ user, signOut, pathname, onNavigate }) {
   const name = getDisplayName(user);
-
-  const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
-      isActive
-        ? "bg-purple-50 text-kiiya-primary"
-        : "text-kiiya-dark/70 hover:bg-purple-50/60"
-    }`;
 
   return (
     <div className="flex h-full flex-col">
       <Link
-        to="/dashboard"
+        href="/dashboard"
         onClick={onNavigate}
         className="p-6 text-xl font-bold text-kiiya-primary"
       >
@@ -57,12 +51,24 @@ function SidebarContent({ user, signOut, onNavigate }) {
       </Link>
 
       <nav className="flex-1 space-y-1 px-3">
-        {NAV_ITEMS.map(({ to, icon: Icon, key }) => (
-          <NavLink key={to} to={to} className={linkClass} onClick={onNavigate}>
-            <Icon className="h-5 w-5" />
-            {t(key)}
-          </NavLink>
-        ))}
+        {NAV_ITEMS.map(({ to, icon: Icon, key }) => {
+          const isActive = pathname === to;
+          return (
+            <Link
+              key={to}
+              href={to}
+              onClick={onNavigate}
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                isActive
+                  ? "bg-purple-50 text-kiiya-primary"
+                  : "text-kiiya-dark/70 hover:bg-purple-50/60"
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+              {t(key)}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="space-y-4 border-t border-purple-100 p-4">
@@ -92,8 +98,31 @@ function SidebarContent({ user, signOut, onNavigate }) {
 
 export default function AppLayout({ children }) {
   useLang();
-  const { user, signOut } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user, loading, signOut } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Auth gate: redirect to /login once we know there is no session.
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/login");
+    }
+  }, [loading, user, router]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace("/login");
+  };
+
+  // While checking the session (or redirecting), show a lightweight loader.
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-kiiya-bg text-kiiya-primary">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   const name = getDisplayName(user);
 
@@ -101,12 +130,16 @@ export default function AppLayout({ children }) {
     <div className="min-h-screen bg-kiiya-bg">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-purple-100 bg-white md:block">
-        <SidebarContent user={user} signOut={signOut} />
+        <SidebarContent
+          user={user}
+          signOut={handleSignOut}
+          pathname={pathname}
+        />
       </aside>
 
       {/* Mobile topbar */}
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-purple-100 bg-white px-4 py-3 md:hidden">
-        <Link to="/dashboard" className="text-lg font-bold text-kiiya-primary">
+        <Link href="/dashboard" className="text-lg font-bold text-kiiya-primary">
           ✦ Kiiya
         </Link>
         <div className="flex items-center gap-3">
@@ -140,7 +173,8 @@ export default function AppLayout({ children }) {
             </button>
             <SidebarContent
               user={user}
-              signOut={signOut}
+              signOut={handleSignOut}
+              pathname={pathname}
               onNavigate={() => setDrawerOpen(false)}
             />
           </div>

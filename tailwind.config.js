@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  content: ["./index.html", "./src/**/*.{js,jsx}"],
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
@@ -9,6 +9,9 @@ export default {
         "kiiya-romantic": "#E8A0BF",
         "kiiya-bg": "#F7F5FF",
         "kiiya-dark": "#1E1B2E",
+      },
+      fontFamily: {
+        sans: ["var(--font-inter)", "Inter", "sans-serif"],
       },
     },
   },

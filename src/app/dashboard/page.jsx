@@ -1,10 +1,10 @@
+"use client";
 import { useMemo, useState } from "react";
 import { Calendar, Clock, Zap, CheckCircle, Plus } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
-import { useLang } from "../hooks/useLang";
-import { t } from "../utils/i18n";
-import { eventColors, statusColors } from "../utils/eventColors";
-import AppLayout from "../components/layout/AppLayout";
+import { useAuth } from "@/hooks/useAuth";
+import { useLang } from "@/hooks/useLang";
+import { t } from "@/utils/i18n";
+import { eventColors, statusColors } from "@/utils/eventColors";
 
 // Dummy events — replaced by Supabase data later.
 const DUMMY_EVENTS = [
@@ -77,7 +77,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <AppLayout>
+    <>
       {/* A) HEADER ROW */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -200,6 +200,6 @@ export default function Dashboard() {
           })}
         </div>
       )}
-    </AppLayout>
+    </>
   );
 }

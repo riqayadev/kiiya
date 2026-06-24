@@ -1,3 +1,5 @@
+"use client";
+
 export default function GoogleIcon({ className = "h-5 w-5" }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

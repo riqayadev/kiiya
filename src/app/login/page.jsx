@@ -1,39 +1,40 @@
+"use client";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
-import { supabase } from "../lib/supabase";
-import { useLang } from "../hooks/useLang";
-import { t } from "../utils/i18n";
-import AuthLayout from "../components/layout/AuthLayout";
-import GoogleIcon from "../components/ui/GoogleIcon";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { useLang } from "@/hooks/useLang";
+import { t } from "@/utils/i18n";
+import AuthLayout from "@/components/layout/AuthLayout";
+import GoogleIcon from "@/components/ui/GoogleIcon";
 
-export default function Register() {
+export default function Login() {
   useLang();
+  const router = useRouter();
+  const [supabase] = useState(() => createClient());
 
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: { data: { full_name: fullName } },
     });
     setLoading(false);
-    if (signUpError) {
-      setError(signUpError.message);
+    if (signInError) {
+      setError(signInError.message);
       return;
     }
-    setSuccess(true);
+    router.push("/dashboard");
   };
 
   const handleGoogle = async () => {
@@ -41,7 +42,7 @@ export default function Register() {
     setGoogleLoading(true);
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/dashboard` },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
     if (oauthError) {
       setError(oauthError.message);
@@ -49,38 +50,14 @@ export default function Register() {
     }
   };
 
-  if (success) {
-    return (
-      <AuthLayout quote="Your story starts with a single moment. Welcome aboard.">
-        <div className="text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 text-kiiya-primary">
-            <MailCheck className="h-8 w-8" />
-          </div>
-          <h1 className="mt-6 text-2xl font-bold text-kiiya-dark">
-            Check your email to confirm your account
-          </h1>
-          <p className="mt-3 text-gray-500">
-            We sent a confirmation link to{" "}
-            <span className="font-semibold text-kiiya-dark">{email}</span>.
-          </p>
-          <Link
-            to="/login"
-            className="mt-8 inline-block rounded-xl bg-kiiya-primary px-6 py-3 font-semibold text-white transition hover:opacity-90"
-          >
-            {t("auth.signIn")}
-          </Link>
-        </div>
-      </AuthLayout>
-    );
-  }
-
   return (
-    <AuthLayout quote="Your story starts with a single moment. Welcome aboard.">
+    <AuthLayout quote="From dream trips to wedding days — every chapter, beautifully planned.">
       <h1 className="text-3xl font-bold text-kiiya-dark">
-        {t("auth.registerTitle")}
+        {t("auth.loginTitle")}
       </h1>
-      <p className="mt-2 text-gray-500">{t("auth.registerSub")}</p>
+      <p className="mt-2 text-gray-500">{t("auth.loginSub")}</p>
 
+      {/* Google OAuth */}
       <button
         type="button"
         onClick={handleGoogle}
@@ -95,6 +72,7 @@ export default function Register() {
         {t("auth.googleBtn")}
       </button>
 
+      {/* Divider */}
       <div className="my-6 flex items-center gap-4">
         <span className="h-px flex-1 bg-gray-200" />
         <span className="text-sm text-gray-400">{t("auth.orContinue")}</span>
@@ -102,20 +80,6 @@ export default function Register() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-kiiya-dark">
-            {t("auth.fullName")}
-          </label>
-          <input
-            type="text"
-            required
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20"
-            placeholder="Jane Doe"
-          />
-        </div>
-
         <div>
           <label className="mb-1 block text-sm font-medium text-kiiya-dark">
             {t("auth.email")}
@@ -138,7 +102,6 @@ export default function Register() {
             <input
               type={showPassword ? "text" : "password"}
               required
-              minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 outline-none transition focus:border-kiiya-primary focus:ring-2 focus:ring-kiiya-primary/20"
@@ -159,6 +122,15 @@ export default function Register() {
           </div>
         </div>
 
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className="text-sm font-medium text-kiiya-primary hover:underline"
+          >
+            {t("auth.forgotPassword")}
+          </button>
+        </div>
+
         {error && (
           <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
@@ -171,17 +143,17 @@ export default function Register() {
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-kiiya-primary py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
         >
           {loading && <Loader2 className="h-5 w-5 animate-spin" />}
-          {t("auth.registerBtn")}
+          {t("auth.loginBtn")}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-gray-500">
-        {t("auth.hasAccount")}{" "}
+        {t("auth.noAccount")}{" "}
         <Link
-          to="/login"
+          href="/register"
           className="font-semibold text-kiiya-primary hover:underline"
         >
-          {t("auth.signIn")}
+          {t("auth.signUp")}
         </Link>
       </p>
     </AuthLayout>

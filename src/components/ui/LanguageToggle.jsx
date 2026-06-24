@@ -1,4 +1,5 @@
-import { useLang } from "../../hooks/useLang";
+"use client";
+import { useLang } from "@/hooks/useLang";
 
 export default function LanguageToggle({ className = "" }) {
   const { lang, switchLang } = useLang();

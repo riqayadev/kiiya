@@ -196,14 +196,16 @@ export const translations = {
 export const LANG_EVENT = "kiiya-lang-change";
 
 export function getLang() {
+  // Guard for SSR — Next pre-renders client components on the server where
+  // localStorage doesn't exist. Default to English there.
+  if (typeof window === "undefined") return "en";
   return localStorage.getItem("kiiya_lang") || "en";
 }
 
 export function setLang(lang) {
+  if (typeof window === "undefined") return;
   localStorage.setItem("kiiya_lang", lang);
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event(LANG_EVENT));
-  }
+  window.dispatchEvent(new Event(LANG_EVENT));
 }
 
 export function t(path) {
