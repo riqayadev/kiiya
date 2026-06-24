@@ -82,6 +82,7 @@ export const translations = {
       },
       nav: {
         dashboard: "Dashboard",
+        planning: "Planning",
         calendar: "Calendar",
         profile: "Profile",
         settings: "Settings",
@@ -99,6 +100,9 @@ export const translations = {
         afternoon: "Good afternoon",
         evening: "Good evening",
       },
+    },
+    planning: {
+      subtitle: "All your life events in one place",
     },
     eventDetail: {
       back: "Back to Dashboard",
@@ -290,6 +294,7 @@ export const translations = {
       },
       nav: {
         dashboard: "Dashboard",
+        planning: "Perencanaan",
         calendar: "Kalender",
         profile: "Profil",
         settings: "Pengaturan",
@@ -307,6 +312,9 @@ export const translations = {
         afternoon: "Selamat siang",
         evening: "Selamat malam",
       },
+    },
+    planning: {
+      subtitle: "Semua life event kamu dalam satu tempat",
     },
     eventDetail: {
       back: "Kembali ke Dashboard",

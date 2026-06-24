@@ -37,6 +37,24 @@ export const eventColors = {
   },
 };
 
+// Since event types are now free text, resolve a color theme by matching
+// keywords (EN + ID) against the typed value. Falls back to the custom theme.
+const TYPE_KEYWORDS = [
+  { key: "trip", words: ["trip", "travel", "wisata", "jalan"] },
+  { key: "wedding", words: ["wedding", "nikah", "married", "kawin"] },
+  { key: "anniversary", words: ["anniversary", "anniv", "ulang tahun"] },
+  { key: "graduation", words: ["graduation", "wisuda", "lulus"] },
+  { key: "babymoon", words: ["babymoon", "baby", "hamil", "maternity"] },
+];
+
+export function getEventColor(type) {
+  const normalized = (type || "").toLowerCase().trim();
+  for (const { key, words } of TYPE_KEYWORDS) {
+    if (words.some((w) => normalized.includes(w))) return eventColors[key];
+  }
+  return eventColors.custom;
+}
+
 // Status pill colors (upcoming=blue, ongoing=green, completed=gray, archived=amber)
 export const statusColors = {
   upcoming: "bg-blue-100 text-blue-700",

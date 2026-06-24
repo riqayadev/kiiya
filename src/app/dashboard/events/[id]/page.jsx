@@ -19,7 +19,7 @@ import { useLang } from "@/hooks/useLang";
 import { useAuth } from "@/hooks/useAuth";
 import { useEventDetail } from "@/hooks/useEventDetail";
 import { t } from "@/utils/i18n";
-import { eventColors, statusColors } from "@/utils/eventColors";
+import { getEventColor, statusColors } from "@/utils/eventColors";
 import { formatRupiah, formatDateRange } from "@/utils/format";
 import ItineraryTab from "@/components/event/ItineraryTab";
 import BudgetTab from "@/components/event/BudgetTab";
@@ -108,7 +108,7 @@ export default function EventDetailPage({ params }) {
     );
   }
 
-  const colors = eventColors[event.type] ?? eventColors.custom;
+  const colors = getEventColor(event.type);
   const budget = event.budget || 0;
   const pct = budget > 0 ? Math.min(Math.round((totalSpent / budget) * 100), 100) : 0;
   const hasCover = !!event.cover_image_url;

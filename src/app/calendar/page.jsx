@@ -13,7 +13,7 @@ import NewEventModal from "@/components/ui/NewEventModal";
 import { useLang } from "@/hooks/useLang";
 import { useEvents } from "@/hooks/useEvents";
 import { t } from "@/utils/i18n";
-import { eventColors, statusColors } from "@/utils/eventColors";
+import { getEventColor, statusColors } from "@/utils/eventColors";
 import { formatRupiah, formatDateRange } from "@/utils/format";
 import { toast } from "@/components/ui/Toast";
 
@@ -52,7 +52,7 @@ export default function CalendarPage() {
   const fcEvents = useMemo(
     () =>
       events.map((e) => {
-        const colors = eventColors[e.type] ?? eventColors.custom;
+        const colors = getEventColor(e.type);
         return {
           id: e.id,
           title: e.title,
@@ -217,7 +217,7 @@ export default function CalendarPage() {
               ) : (
                 <div className="space-y-2">
                   {upcoming.map((e) => {
-                    const colors = eventColors[e.type] ?? eventColors.custom;
+                    const colors = getEventColor(e.type);
                     return (
                       <Link
                         key={e.id}

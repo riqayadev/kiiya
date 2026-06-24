@@ -1,12 +1,12 @@
 "use client";
 import { forwardRef } from "react";
-import { eventColors } from "@/utils/eventColors";
+import { getEventColor } from "@/utils/eventColors";
 import { formatRupiah, formatDateRange } from "@/utils/format";
 
 // 9:16 memory card. Rendered at a modest on-screen size; html2canvas upscales
 // it on export for a crisp IG-Stories-ready PNG.
 const ShareableCard = forwardRef(function ShareableCard({ event, stats }, ref) {
-  const colors = eventColors[event?.type] ?? eventColors.custom;
+  const colors = getEventColor(event?.type);
   const emoji = event?.cover_emoji || colors.icon;
 
   return (
