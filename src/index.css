@@ -2,10 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
   background-color: theme("colors.kiiya-bg");
   color: theme("colors.kiiya-dark");
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Floating decorative cards in the hero section */
+@keyframes kiiya-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+.animate-float {
+  animation: kiiya-float 5s ease-in-out infinite;
 }
