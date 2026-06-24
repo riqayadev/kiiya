@@ -1,63 +1,48 @@
-// Kiiya service worker — simple offline cache.
-// - Cache-first for static assets (same-origin GET).
-// - Network-first for API calls (Supabase / cross-origin).
-const CACHE = "kiiya-v1";
-const PRECACHE = ["/", "/dashboard", "/manifest.json", "/icons/icon-192.png"];
+// Kiiya service worker.
+// - Cache-first ONLY for static assets (js/css/images/fonts).
+// - Network-first for everything else (HTML pages + API), so a new deploy is
+//   always picked up immediately instead of serving stale HTML from cache.
+const CACHE_NAME = "kiiya-v2";
+const STATIC_EXTENSIONS = [".js", ".css", ".png", ".jpg", ".ico", ".woff2"];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(PRECACHE)).catch(() => {})
-  );
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+        Promise.all(
+          keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+        )
       )
   );
   self.clients.claim();
 });
 
-self.addEventListener("fetch", (event) => {
-  const { request } = event;
-  if (request.method !== "GET") return;
+self.addEventListener("fetch", (e) => {
+  if (e.request.method !== "GET") return;
 
-  const url = new URL(request.url);
-  const isApi =
-    url.origin !== self.location.origin ||
-    url.pathname.startsWith("/api") ||
-    url.hostname.includes("supabase");
+  const url = new URL(e.request.url);
+  const isStatic = STATIC_EXTENSIONS.some((ext) => url.pathname.endsWith(ext));
 
-  if (isApi) {
-    // Network-first for dynamic/API requests.
-    event.respondWith(
-      fetch(request)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
-          return res;
-        })
-        .catch(() => caches.match(request))
-    );
-    return;
-  }
-
-  // Cache-first for static, same-origin assets.
-  event.respondWith(
-    caches.match(request).then(
-      (cached) =>
-        cached ||
-        fetch(request)
-          .then((res) => {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
+  if (isStatic) {
+    // Cache-first for static assets.
+    e.respondWith(
+      caches.match(e.request).then(
+        (cached) =>
+          cached ||
+          fetch(e.request).then((res) => {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
             return res;
           })
-          .catch(() => cached)
-    )
-  );
+      )
+    );
+  } else {
+    // Network-first for HTML and API — fall back to cache only when offline.
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+  }
 });

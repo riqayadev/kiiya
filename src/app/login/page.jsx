@@ -34,7 +34,7 @@ export default function Login() {
       setError(signInError.message);
       return;
     }
-    router.push("/dashboard");
+    router.push("/planning");
   };
 
   const handleGoogle = async () => {
