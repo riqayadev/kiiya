@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Calendar, Clock, Zap, CheckCircle, Plus, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLang } from "@/hooks/useLang";
@@ -151,9 +152,10 @@ export default function Dashboard() {
           {filtered.map((event) => {
             const colors = eventColors[event.type] ?? eventColors.custom;
             return (
-              <div
+              <Link
                 key={event.id}
-                className="overflow-hidden rounded-2xl border border-purple-100 bg-white transition hover:scale-[1.01] hover:shadow-lg"
+                href={`/dashboard/events/${event.id}`}
+                className="block cursor-pointer overflow-hidden rounded-2xl border border-purple-100 bg-white transition hover:scale-[1.01] hover:shadow-lg"
               >
                 {/* Cover */}
                 <div
@@ -187,7 +189,7 @@ export default function Dashboard() {
                     {formatRupiah(event.budget)}
                   </p>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
