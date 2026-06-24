@@ -1,73 +1,52 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Calendar, Clock, Zap, CheckCircle, Plus } from "lucide-react";
+import { Calendar, Clock, Zap, CheckCircle, Plus, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLang } from "@/hooks/useLang";
+import { useEvents } from "@/hooks/useEvents";
 import { t } from "@/utils/i18n";
 import { eventColors, statusColors } from "@/utils/eventColors";
-
-// Dummy events — replaced by Supabase data later.
-const DUMMY_EVENTS = [
-  { id: 1, title: "Bali Trip 2026", type: "trip", status: "upcoming", startDate: "2026-08-15", endDate: "2026-08-22", budget: 5000000, cover: "✈️" },
-  { id: 2, title: "Anniversary Dinner", type: "anniversary", status: "ongoing", startDate: "2026-06-24", endDate: "2026-06-24", budget: 500000, cover: "💑" },
-  { id: 3, title: "Graduation Trip", type: "graduation", status: "completed", startDate: "2026-05-01", endDate: "2026-05-07", budget: 3000000, cover: "🎓" },
-  { id: 4, title: "Wedding Planning", type: "wedding", status: "upcoming", startDate: "2027-12-12", endDate: "2027-12-12", budget: 50000000, cover: "💍" },
-];
+import { formatRupiah, formatDateRange, getTimeGreeting } from "@/utils/format";
+import NewEventModal from "@/components/ui/NewEventModal";
 
 const FILTERS = ["all", "upcoming", "ongoing", "completed"];
-
-function formatRupiah(value) {
-  return "Rp " + value.toLocaleString("id-ID");
-}
-
-function formatDateRange(start, end) {
-  const opts = { day: "numeric", month: "short", year: "numeric" };
-  const s = new Date(start).toLocaleDateString("en-GB", opts);
-  if (start === end) return s;
-  const e = new Date(end).toLocaleDateString("en-GB", opts);
-  return `${s} – ${e}`;
-}
-
-function greetingKey() {
-  const h = new Date().getHours();
-  if (h < 12) return "dashboard.good.morning";
-  if (h < 18) return "dashboard.good.afternoon";
-  return "dashboard.good.evening";
-}
 
 function getDisplayName(user) {
   return user?.user_metadata?.full_name || user?.email?.split("@")[0] || "there";
 }
 
+function EventsSkeleton() {
+  return (
+    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="h-64 animate-pulse rounded-2xl bg-gray-100" />
+      ))}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   useLang();
   const { user } = useAuth();
+  const { events, loading, error, fetchEvents, createEvent } = useEvents();
   const [filter, setFilter] = useState("all");
+  const [showNewEventModal, setShowNewEventModal] = useState(false);
 
-  // Stable random budget progress per event (won't change on re-render/filter).
-  const progressById = useMemo(() => {
-    const map = {};
-    DUMMY_EVENTS.forEach((e) => {
-      map[e.id] = Math.floor(Math.random() * 81);
-    });
-    return map;
-  }, []);
-
-  const stats = useMemo(() => {
-    return {
-      total: DUMMY_EVENTS.length,
-      upcoming: DUMMY_EVENTS.filter((e) => e.status === "upcoming").length,
-      ongoing: DUMMY_EVENTS.filter((e) => e.status === "ongoing").length,
-      completed: DUMMY_EVENTS.filter((e) => e.status === "completed").length,
-    };
-  }, []);
+  const stats = useMemo(
+    () => ({
+      total: events.length,
+      upcoming: events.filter((e) => e.status === "upcoming").length,
+      ongoing: events.filter((e) => e.status === "ongoing").length,
+      completed: events.filter((e) => e.status === "completed").length,
+    }),
+    [events]
+  );
 
   const filtered =
-    filter === "all"
-      ? DUMMY_EVENTS
-      : DUMMY_EVENTS.filter((e) => e.status === filter);
+    filter === "all" ? events : events.filter((e) => e.status === filter);
 
   const name = getDisplayName(user);
+  const greeting = t(`dashboard.good.${getTimeGreeting()}`);
 
   const statCards = [
     { icon: Calendar, value: stats.total, label: t("dashboard.stats.totalEvents") },
@@ -82,11 +61,14 @@ export default function Dashboard() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-kiiya-dark md:text-3xl">
-            {t(greetingKey())}, {name}! 👋
+            {greeting}, {name}! 👋
           </h1>
           <p className="mt-1 text-gray-500">{t("dashboard.greetingSub")}</p>
         </div>
-        <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white shadow-sm transition hover:opacity-90">
+        <button
+          onClick={() => setShowNewEventModal(true)}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white shadow-sm transition hover:opacity-90"
+        >
           <Plus className="h-5 w-5" />
           {t("dashboard.newEvent")}
         </button>
@@ -130,8 +112,24 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* D) EVENT CARDS GRID / E) EMPTY STATE */}
-      {filtered.length === 0 ? (
+      {/* D) CONTENT: loading / error / empty / grid */}
+      {loading ? (
+        <EventsSkeleton />
+      ) : error ? (
+        <div className="mt-12 flex flex-col items-center justify-center rounded-2xl border border-red-100 bg-red-50/50 py-16 text-center">
+          <AlertCircle className="h-10 w-10 text-red-500" />
+          <p className="mt-4 font-semibold text-kiiya-dark">
+            Something went wrong
+          </p>
+          <p className="mt-1 max-w-sm text-sm text-gray-500">{error}</p>
+          <button
+            onClick={fetchEvents}
+            className="mt-6 rounded-xl bg-kiiya-primary px-5 py-2.5 font-semibold text-white transition hover:opacity-90"
+          >
+            Retry
+          </button>
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="mt-12 flex flex-col items-center justify-center rounded-2xl border border-dashed border-purple-200 bg-white py-16 text-center">
           <span className="text-5xl">🗺️</span>
           <h3 className="mt-4 text-xl font-bold text-kiiya-dark">
@@ -140,7 +138,10 @@ export default function Dashboard() {
           <p className="mt-2 max-w-sm text-gray-500">
             {t("dashboard.noEventsSub")}
           </p>
-          <button className="mt-6 inline-flex items-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white transition hover:opacity-90">
+          <button
+            onClick={() => setShowNewEventModal(true)}
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white transition hover:opacity-90"
+          >
             <Plus className="h-5 w-5" />
             {t("dashboard.createFirst")}
           </button>
@@ -149,7 +150,6 @@ export default function Dashboard() {
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((event) => {
             const colors = eventColors[event.type] ?? eventColors.custom;
-            const progress = progressById[event.id];
             return (
               <div
                 key={event.id}
@@ -159,7 +159,7 @@ export default function Dashboard() {
                 <div
                   className={`flex h-28 items-center justify-center bg-gradient-to-br text-5xl ${colors.gradient}`}
                 >
-                  {event.cover}
+                  {event.cover_emoji || colors.icon}
                 </div>
 
                 <div className="p-5">
@@ -180,26 +180,26 @@ export default function Dashboard() {
                     {event.title}
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">
-                    {formatDateRange(event.startDate, event.endDate)}
+                    {formatDateRange(event.start_date, event.end_date)}
                   </p>
 
                   <p className="mt-3 text-sm font-semibold text-kiiya-dark">
                     {formatRupiah(event.budget)}
                   </p>
-                  {/* Budget progress bar */}
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-purple-100">
-                    <div
-                      className="h-full rounded-full bg-kiiya-primary"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                  <p className="mt-1 text-xs text-gray-400">{progress}% used</p>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
+      {/* New Event modal */}
+      <NewEventModal
+        isOpen={showNewEventModal}
+        onClose={() => setShowNewEventModal(false)}
+        onSuccess={() => fetchEvents()}
+        createEvent={createEvent}
+      />
     </>
   );
 }
