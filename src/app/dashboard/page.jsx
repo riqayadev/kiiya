@@ -22,6 +22,7 @@ import { formatRupiah, formatDateRange, getTimeGreeting } from "@/utils/format";
 import { ACHIEVEMENTS, getUnlocked } from "@/utils/achievements";
 import NewEventModal from "@/components/ui/NewEventModal";
 import OnThisDayWidget from "@/components/ui/OnThisDayWidget";
+import AsyncErrorBoundary from "@/components/ui/AsyncErrorBoundary";
 
 const GREETINGS = {
   morning: "Good morning",
@@ -361,7 +362,9 @@ export default function Dashboard() {
       )}
 
       {/* C2) ON THIS DAY */}
-      <OnThisDayWidget />
+      <AsyncErrorBoundary>
+        <OnThisDayWidget />
+      </AsyncErrorBoundary>
 
       {/* D) RECENT ACTIVITY */}
       {recentEvents.length > 0 && (

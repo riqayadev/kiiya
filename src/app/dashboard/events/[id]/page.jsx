@@ -25,6 +25,7 @@ import MembersTab from "@/components/event/MembersTab";
 import MoodBoardTab from "@/components/event/MoodBoardTab";
 import TimeCapsuleTab from "@/components/event/TimeCapsuleTab";
 import UnsplashModal from "@/components/ui/UnsplashModal";
+import AsyncErrorBoundary from "@/components/ui/AsyncErrorBoundary";
 import { toast } from "@/components/ui/Toast";
 
 const TABS = [
@@ -347,49 +348,51 @@ export default function EventDetailPage({ params }) {
 
       {/* D) TAB CONTENT */}
       <div className="mx-auto max-w-4xl px-6 pt-6 md:px-8">
-        {activeTab === "itinerary" && (
-          <ItineraryTab
-            event={event}
-            itineraryDays={detail.itineraryDays}
-            addDay={detail.addDay}
-            addActivity={detail.addActivity}
-            updateActivity={detail.updateActivity}
-            toggleActivity={detail.toggleActivity}
-            deleteActivity={detail.deleteActivity}
-            updateDay={detail.updateDay}
-            deleteDay={detail.deleteDay}
-          />
-        )}
-        {activeTab === "budget" && (
-          <BudgetTab
-            event={event}
-            expenses={detail.expenses}
-            addExpense={detail.addExpense}
-            updateExpense={detail.updateExpense}
-            deleteExpense={detail.deleteExpense}
-          />
-        )}
-        {activeTab === "checklist" && (
-          <ChecklistTab
-            checklist={detail.checklist}
-            addChecklistItem={detail.addChecklistItem}
-            updateChecklistItem={detail.updateChecklistItem}
-            toggleChecklistItem={detail.toggleChecklistItem}
-            deleteChecklistItem={detail.deleteChecklistItem}
-          />
-        )}
-        {activeTab === "members" && (
-          <MembersTab
-            members={detail.members}
-            currentUserEmail={user?.email}
-            addMember={detail.addMember}
-            removeMember={detail.removeMember}
-          />
-        )}
-        {activeTab === "moodboard" && (
-          <MoodBoardTab eventId={event.id} eventType={event.type} />
-        )}
-        {activeTab === "timecapsule" && <TimeCapsuleTab event={event} />}
+        <AsyncErrorBoundary key={activeTab}>
+          {activeTab === "itinerary" && (
+            <ItineraryTab
+              event={event}
+              itineraryDays={detail.itineraryDays}
+              addDay={detail.addDay}
+              addActivity={detail.addActivity}
+              updateActivity={detail.updateActivity}
+              toggleActivity={detail.toggleActivity}
+              deleteActivity={detail.deleteActivity}
+              updateDay={detail.updateDay}
+              deleteDay={detail.deleteDay}
+            />
+          )}
+          {activeTab === "budget" && (
+            <BudgetTab
+              event={event}
+              expenses={detail.expenses}
+              addExpense={detail.addExpense}
+              updateExpense={detail.updateExpense}
+              deleteExpense={detail.deleteExpense}
+            />
+          )}
+          {activeTab === "checklist" && (
+            <ChecklistTab
+              checklist={detail.checklist}
+              addChecklistItem={detail.addChecklistItem}
+              updateChecklistItem={detail.updateChecklistItem}
+              toggleChecklistItem={detail.toggleChecklistItem}
+              deleteChecklistItem={detail.deleteChecklistItem}
+            />
+          )}
+          {activeTab === "members" && (
+            <MembersTab
+              members={detail.members}
+              currentUserEmail={user?.email}
+              addMember={detail.addMember}
+              removeMember={detail.removeMember}
+            />
+          )}
+          {activeTab === "moodboard" && (
+            <MoodBoardTab eventId={event.id} eventType={event.type} />
+          )}
+          {activeTab === "timecapsule" && <TimeCapsuleTab event={event} />}
+        </AsyncErrorBoundary>
       </div>
 
       <UnsplashModal

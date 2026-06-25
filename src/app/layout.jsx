@@ -4,6 +4,7 @@ import Toaster from "@/components/ui/Toast";
 import AchievementToaster from "@/components/ui/AchievementToast";
 import NavigationProgress from "@/components/ui/NavigationProgress";
 import ServiceWorkerRegister from "@/components/ui/ServiceWorkerRegister";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -59,7 +60,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="font-sans antialiased">
         <NavigationProgress />
-        {children}
+        <ErrorBoundary>{children}</ErrorBoundary>
         <Toaster />
         <AchievementToaster />
         <ServiceWorkerRegister />
