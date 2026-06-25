@@ -17,6 +17,8 @@ import {
   List as ListIcon,
   ArrowUpDown,
   Timer,
+  Search,
+  X,
 } from "lucide-react";
 import { useLang } from "@/hooks/useLang";
 import { useEvents } from "@/hooks/useEvents";
@@ -41,6 +43,36 @@ function daysUntil(dateStr) {
   return Math.round((target - today) / 86400000);
 }
 
+// Compact IDR for list rows: "Rp 2,5jt" for ≥ 1jt, full id-ID format otherwise.
+function formatBudgetShort(amount) {
+  if (!amount) return null;
+  if (amount >= 1_000_000) {
+    const jt = (amount / 1_000_000).toFixed(1).replace(/\.0$/, "").replace(".", ",");
+    return `Rp ${jt}jt`;
+  }
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
+}
+
+// Shared centered empty-state block (no events / no filter match / no search match).
+function EmptyState({ emoji, title, subtitle, action }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="mb-4 text-5xl">{emoji}</div>
+      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+        {title}
+      </h3>
+      <p className="mx-auto mt-1 max-w-xs text-sm text-gray-400 dark:text-gray-500">
+        {subtitle}
+      </p>
+      {action && <div className="mt-6">{action}</div>}
+    </div>
+  );
+}
+
 function EventsSkeleton() {
   return (
     <div className="mt-6 space-y-2">
@@ -48,36 +80,6 @@ function EventsSkeleton() {
         <div key={i} className="kiiya-skeleton h-[72px] rounded-2xl" />
       ))}
     </div>
-  );
-}
-
-function EmptyIllustration() {
-  return (
-    <svg viewBox="0 0 200 160" className="h-40 w-48" aria-hidden>
-      <ellipse cx="100" cy="140" rx="70" ry="10" fill="#EDE9FF" className="dark:hidden" />
-      <ellipse cx="100" cy="140" rx="70" ry="10" fill="#221F32" className="hidden dark:block" />
-      <path
-        d="M40 70l60-30 60 30v50l-60 30-60-30z"
-        fill="#F0EEFF"
-        stroke="#C4B8FF"
-        strokeWidth="2"
-        className="dark:hidden"
-      />
-      <path
-        d="M40 70l60-30 60 30v50l-60 30-60-30z"
-        fill="#221F32"
-        stroke="#4A4560"
-        strokeWidth="2"
-        className="hidden dark:block"
-      />
-      <path d="M70 56l30 14m30-14l-30 14m0 0v60" stroke="#C4B8FF" strokeWidth="1.5" fill="none" />
-      <circle cx="118" cy="58" r="12" fill="#7C6EF5" />
-      <path
-        d="M118 46c7 0 12 5 12 12 0 8-12 20-12 20s-12-12-12-20c0-7 5-12 12-12z"
-        fill="#7C6EF5"
-      />
-      <circle cx="118" cy="57" r="4" fill="#fff" />
-    </svg>
   );
 }
 
@@ -230,56 +232,64 @@ function EventMenu({ event, onEdit, onStatus, onDelete, dark }) {
   );
 }
 
-function EventThumb({ event, size }) {
-  const colors = getEventColor(event.type);
-  if (event.cover_image_url) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={event.cover_image_url}
-        alt={event.title}
-        className={`${size} flex-shrink-0 rounded-lg object-cover`}
-      />
-    );
-  }
-  return (
-    <div
-      className={`${size} flex flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-xl ${colors.gradient}`}
-    >
-      {event.cover_emoji || colors.icon}
-    </div>
-  );
-}
-
 function EventRow({ event, onOpen, onEdit, onStatus, onDelete }) {
   const colors = getEventColor(event.type);
+  const dateText =
+    formatDateRange(event.start_date, event.end_date) || "No date";
+  const budgetText = formatBudgetShort(event.budget);
   return (
     <div
       onClick={onOpen}
-      className="group flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-purple-50 dark:hover:bg-[#221F32]"
+      className="group flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-white/5"
     >
-      <EventThumb event={event} size="h-12 w-12" />
+      {/* Thumbnail */}
+      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl">
+        {event.cover_image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={event.cover_image_url}
+            alt={event.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div
+            className={`flex h-full w-full items-center justify-center bg-gradient-to-br text-xl ${colors.gradient}`}
+          >
+            {event.cover_emoji || colors.icon}
+          </div>
+        )}
+      </div>
+
+      {/* Title + type */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-kiiya-dark dark:text-white">
+        <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
           {event.title}
         </p>
-        <p className="truncate text-xs text-gray-400 dark:text-[#6B6480]">
-          {formatDateRange(event.start_date, event.end_date)}
+        <p className="truncate text-xs text-gray-400 dark:text-gray-500">
+          {colors.icon} {event.type}
         </p>
       </div>
-      <span
-        className={`hidden flex-shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold sm:inline ${colors.badge}`}
-      >
-        {colors.icon} {t(`dashboard.eventTypes.${event.type}`)}
+
+      {/* Date range */}
+      <span className="hidden flex-shrink-0 text-xs text-gray-500 dark:text-gray-400 sm:block">
+        {dateText}
       </span>
+
+      {/* Budget (hidden when none) */}
+      {budgetText && (
+        <span className="hidden flex-shrink-0 text-xs font-medium text-gray-600 dark:text-gray-300 md:block">
+          {budgetText}
+        </span>
+      )}
+
+      {/* Status badge */}
       <span
         className={`flex-shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${statusColors[event.status]}`}
       >
         {t(`dashboard.status.${event.status}`)}
       </span>
-      <span className="hidden w-24 flex-shrink-0 text-right text-xs font-semibold text-kiiya-dark dark:text-[#A89EC9] md:block">
-        {formatRupiah(event.budget)}
-      </span>
+
+      {/* ⋯ menu */}
       <div onClick={(e) => e.stopPropagation()}>
         <EventMenu
           event={event}
@@ -356,6 +366,7 @@ export default function Planning() {
   const { events, loading, error, fetchEvents, createEvent, updateEvent, deleteEvent } =
     useEvents();
   const [filter, setFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState("list");
   const [sort, setSort] = useState("newest");
   const [sortOpen, setSortOpen] = useState(false);
@@ -405,8 +416,11 @@ export default function Planning() {
   }, [events]);
 
   const filtered = useMemo(() => {
-    const base =
+    const q = searchQuery.trim().toLowerCase();
+    let base =
       filter === "all" ? events : events.filter((e) => e.status === filter);
+    // Realtime title search applies on top of the active tab filter.
+    if (q) base = base.filter((e) => (e.title || "").toLowerCase().includes(q));
     const sorted = [...base];
     sorted.sort((a, b) => {
       if (sort === "az") return (a.title || "").localeCompare(b.title || "");
@@ -417,7 +431,7 @@ export default function Planning() {
       return (a.created_at || "") > (b.created_at || "") ? -1 : 1; // newest
     });
     return sorted;
-  }, [events, filter, sort]);
+  }, [events, filter, sort, searchQuery]);
 
   const statCards = [
     { icon: Calendar, value: stats.total, label: t("dashboard.stats.totalEvents") },
@@ -513,9 +527,31 @@ export default function Planning() {
         </div>
       )}
 
-      {/* D) FILTER ROW */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-2">
+      {/* D) TOOLBAR — search + filters + sort + view */}
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          {/* Search */}
+          <div className="relative w-full sm:w-80">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("planning.search_placeholder")}
+              className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-9 text-sm text-kiiya-dark outline-none transition focus:border-kiiya-primary dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-gray-500"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                aria-label={t("planning.clear_search")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Filter tabs */}
+          <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => {
             const label =
               f === "all" ? t("dashboard.filter.all") : t(`dashboard.status.${f}`);
@@ -534,6 +570,7 @@ export default function Planning() {
               </button>
             );
           })}
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -616,24 +653,62 @@ export default function Planning() {
           </button>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="mt-12 flex flex-col items-center justify-center rounded-2xl border border-dashed border-purple-200 bg-white py-16 text-center dark:border-[#2D2A3E] dark:bg-[#1A1825]">
-          <EmptyIllustration />
-          <h3 className="mt-4 text-xl font-bold text-kiiya-dark dark:text-white">
-            {t("dashboard.noEvents")}
-          </h3>
-          <p className="mt-2 max-w-sm text-gray-500 dark:text-[#A89EC9]">
-            {t("dashboard.noEventsSub")}
-          </p>
-          <button
-            onClick={() => setShowNewEventModal(true)}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white transition hover:opacity-90"
-          >
-            <Plus className="h-5 w-5" />
-            {t("dashboard.createFirst")}
-          </button>
-        </div>
+        searchQuery.trim() ? (
+          // C — search returned nothing
+          <EmptyState
+            emoji="🔍"
+            title={t("planning.no_results_title").replace(
+              "{query}",
+              searchQuery.trim()
+            )}
+            subtitle={t("planning.no_results_subtitle")}
+            action={
+              <button
+                onClick={() => setSearchQuery("")}
+                className="inline-flex items-center gap-2 rounded-xl border border-purple-200 px-5 py-2.5 font-semibold text-kiiya-primary transition hover:bg-purple-50 dark:border-[#2D2A3E] dark:hover:bg-[#221F32]"
+              >
+                {t("planning.clear_search")}
+              </button>
+            }
+          />
+        ) : events.length === 0 ? (
+          // A — no events at all (first-time user)
+          <EmptyState
+            emoji="🗺️"
+            title={t("planning.empty_title")}
+            subtitle={t("planning.empty_subtitle")}
+            action={
+              <button
+                onClick={() => setShowNewEventModal(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white transition hover:opacity-90"
+              >
+                <Plus className="h-5 w-5" />
+                {t("dashboard.newEvent")}
+              </button>
+            }
+          />
+        ) : (
+          // B — active tab filter has no matches
+          <EmptyState
+            emoji="📭"
+            title={t("planning.empty_filter_title")}
+            subtitle={t("planning.empty_filter_subtitle").replace(
+              "{status}",
+              filter === "all" ? "" : t(`dashboard.status.${filter}`).toLowerCase()
+            )}
+            action={
+              <button
+                onClick={() => setShowNewEventModal(true)}
+                className="inline-flex items-center gap-2 rounded-xl border border-purple-200 px-5 py-3 font-semibold text-kiiya-primary transition hover:bg-purple-50 dark:border-[#2D2A3E] dark:hover:bg-[#221F32]"
+              >
+                <Plus className="h-5 w-5" />
+                {t("dashboard.newEvent")}
+              </button>
+            }
+          />
+        )
       ) : view === "list" ? (
-        <div className="divide-y divide-purple-50 overflow-hidden rounded-2xl border border-purple-100 bg-white dark:divide-[#2D2A3E] dark:border-[#2D2A3E] dark:bg-[#1A1825]">
+        <div className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white dark:divide-white/5 dark:border-white/10 dark:bg-[#1A1825]">
           {filtered.map((event) => (
             <EventRow
               key={event.id}

@@ -103,6 +103,16 @@ export const translations = {
     },
     planning: {
       subtitle: "All your life events in one place",
+      search_placeholder: "Search events...",
+      empty_title: "Your story starts here",
+      empty_subtitle:
+        "Plan your first life event — a trip, a wedding, anything worth remembering.",
+      empty_filter_title: "Nothing here yet",
+      empty_filter_subtitle:
+        "No {status} events. Switch tabs or create a new one.",
+      no_results_title: 'No results for "{query}"',
+      no_results_subtitle: "Try a different keyword or clear the search.",
+      clear_search: "Clear search",
     },
     eventDetail: {
       back: "Back to Dashboard",
@@ -315,6 +325,16 @@ export const translations = {
     },
     planning: {
       subtitle: "Semua life event kamu dalam satu tempat",
+      search_placeholder: "Cari event...",
+      empty_title: "Ceritamu dimulai di sini",
+      empty_subtitle:
+        "Rencanakan life event pertamamu — perjalanan, pernikahan, apa pun yang layak dikenang.",
+      empty_filter_title: "Belum ada di sini",
+      empty_filter_subtitle:
+        "Tidak ada event {status}. Ganti tab atau buat yang baru.",
+      no_results_title: 'Tidak ada hasil untuk "{query}"',
+      no_results_subtitle: "Coba kata kunci lain atau bersihkan pencarian.",
+      clear_search: "Bersihkan pencarian",
     },
     eventDetail: {
       back: "Kembali ke Dashboard",
