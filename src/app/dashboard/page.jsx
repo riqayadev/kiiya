@@ -21,6 +21,7 @@ import { getEventColor, statusColors } from "@/utils/eventColors";
 import { formatRupiah, formatDateRange, getTimeGreeting } from "@/utils/format";
 import { ACHIEVEMENTS, getUnlocked } from "@/utils/achievements";
 import NewEventModal from "@/components/ui/NewEventModal";
+import OnThisDayWidget from "@/components/ui/OnThisDayWidget";
 
 const GREETINGS = {
   morning: "Good morning",
@@ -358,6 +359,9 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* C2) ON THIS DAY */}
+      <OnThisDayWidget />
 
       {/* D) RECENT ACTIVITY */}
       {recentEvents.length > 0 && (
