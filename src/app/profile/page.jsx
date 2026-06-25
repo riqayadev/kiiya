@@ -9,7 +9,7 @@ import {
   Wallet,
   Clock,
 } from "lucide-react";
-import AppLayout from "@/components/layout/AppLayout";
+import AppLayout, { PROFILE_UPDATED_EVENT } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useEvents } from "@/hooks/useEvents";
 import { useLang } from "@/hooks/useLang";
@@ -148,6 +148,7 @@ export default function ProfilePage() {
         .eq("id", user.id);
       if (error) throw error;
       setProfile((p) => ({ ...p, ...form }));
+      window.dispatchEvent(new Event(PROFILE_UPDATED_EVENT));
       setSavedInfo(true);
       toast.success("Changes saved!");
       setTimeout(() => setSavedInfo(false), 2000);
@@ -175,6 +176,7 @@ export default function ProfilePage() {
       const url = data.publicUrl;
       await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
       setProfile((p) => ({ ...p, avatar_url: url }));
+      window.dispatchEvent(new Event(PROFILE_UPDATED_EVENT));
       toast.success("Photo updated!");
     } catch (err) {
       toast.error(

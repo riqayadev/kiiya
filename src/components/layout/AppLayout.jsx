@@ -15,9 +15,14 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLang } from "@/hooks/useLang";
+import { createClient } from "@/lib/supabase/client";
 import { t } from "@/utils/i18n";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+
+// Fired by the profile page after a successful save so the sidebar re-fetches
+// without a full reload (the layout persists across route changes).
+export const PROFILE_UPDATED_EVENT = "kiiya-profile-updated";
 
 const NAV_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, key: "dashboard.nav.dashboard" },
@@ -25,9 +30,12 @@ const NAV_ITEMS = [
   { to: "/calendar", icon: CalendarDays, key: "dashboard.nav.calendar" },
 ];
 
-function getDisplayName(user) {
+function getDisplayName(user, profile) {
   return (
-    user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Guest"
+    profile?.full_name ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split("@")[0] ||
+    "Guest"
   );
 }
 
@@ -40,8 +48,8 @@ function getInitials(name) {
     .toUpperCase();
 }
 
-function SidebarContent({ user, signOut, pathname, onNavigate }) {
-  const name = getDisplayName(user);
+function SidebarContent({ user, profile, signOut, pathname, onNavigate }) {
+  const name = getDisplayName(user, profile);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -118,9 +126,18 @@ function SidebarContent({ user, signOut, pathname, onNavigate }) {
             aria-haspopup="menu"
             aria-expanded={menuOpen}
           >
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-kiiya-primary text-xs font-semibold text-white">
-              {getInitials(name)}
-            </div>
+            {profile?.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profile.avatar_url}
+                alt={name}
+                className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-kiiya-primary text-xs font-semibold text-white">
+                {getInitials(name)}
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-kiiya-dark dark:text-[#F0EEFF]">
                 {name}
@@ -181,6 +198,7 @@ export default function AppLayout({ children }) {
   const pathname = usePathname();
   const { user, loading, signOut } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [profile, setProfile] = useState(null);
 
   // Auth gate: redirect to /login once we know there is no session.
   useEffect(() => {
@@ -188,6 +206,27 @@ export default function AppLayout({ children }) {
       router.replace("/login");
     }
   }, [loading, user, router]);
+
+  // Pull display name/avatar from the profiles table (useAuth only sees the
+  // auth user, so profile edits wouldn't otherwise reflect in the sidebar).
+  useEffect(() => {
+    if (!user) return;
+    const supabase = createClient();
+    const load = () => {
+      supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) setProfile(data);
+        });
+    };
+    load();
+    // Re-fetch when the profile page reports a save.
+    window.addEventListener(PROFILE_UPDATED_EVENT, load);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, load);
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -203,7 +242,7 @@ export default function AppLayout({ children }) {
     );
   }
 
-  const name = getDisplayName(user);
+  const name = getDisplayName(user, profile);
 
   return (
     <div className="min-h-screen bg-kiiya-bg dark:bg-[#0F0E17]">
@@ -211,6 +250,7 @@ export default function AppLayout({ children }) {
       <aside className="fixed inset-y-0 left-0 hidden w-60 border-r border-purple-100 bg-white dark:border-[#2D2A3E] dark:bg-[#13111E] md:block">
         <SidebarContent
           user={user}
+          profile={profile}
           signOut={handleSignOut}
           pathname={pathname}
         />
@@ -222,9 +262,18 @@ export default function AppLayout({ children }) {
           ✦ Kiiya
         </Link>
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-kiiya-primary text-xs font-semibold text-white">
-            {getInitials(name)}
-          </div>
+          {profile?.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile.avatar_url}
+              alt={name}
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-kiiya-primary text-xs font-semibold text-white">
+              {getInitials(name)}
+            </div>
+          )}
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="Open menu"
@@ -252,6 +301,7 @@ export default function AppLayout({ children }) {
             </button>
             <SidebarContent
               user={user}
+              profile={profile}
               signOut={handleSignOut}
               pathname={pathname}
               onNavigate={() => setDrawerOpen(false)}
