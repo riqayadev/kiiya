@@ -1,35 +1,38 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, Loader2 } from "lucide-react";
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 import { useLang } from "@/hooks/useLang";
+import { useTheme } from "@/hooks/useTheme";
 import { t } from "@/utils/i18n";
 
-const EVENT_TYPES = [
-  "trip",
-  "wedding",
-  "anniversary",
-  "babymoon",
-  "graduation",
-  "custom",
+// Clickable suggestions that autofill the (free-text) type + matching emoji.
+const TYPE_SUGGESTIONS = [
+  { emoji: "✈️", label: "Trip" },
+  { emoji: "💍", label: "Wedding" },
+  { emoji: "💑", label: "Anniversary" },
+  { emoji: "🤰", label: "Babymoon" },
+  { emoji: "🎓", label: "Graduation" },
 ];
 
+// Pick a sensible default emoji from the typed type (EN + ID keywords).
+function defaultEmojiForType(type) {
+  const n = (type || "").toLowerCase();
+  if (/trip|travel|wisata/.test(n)) return "✈️";
+  if (/wedding|nikah|kawin/.test(n)) return "💍";
+  if (/anniversary|ultah/.test(n)) return "💑";
+  if (/graduation|wisuda|lulus/.test(n)) return "🎓";
+  if (/babymoon|baby|hamil/.test(n)) return "🤰";
+  return "✨";
+}
+
 const STATUSES = ["upcoming", "ongoing", "completed", "archived"];
-
-const TYPE_EMOJI = {
-  trip: "✈️",
-  wedding: "💍",
-  anniversary: "💑",
-  babymoon: "🤰",
-  graduation: "🎓",
-  custom: "⭐",
-};
-
-const EMOJI_OPTIONS = ["✈️", "💍", "💑", "🤰", "🎓", "🌴", "🎉", "🏔️", "🌊", "⭐"];
 
 function toForm(event) {
   return {
     title: event?.title ?? "",
-    type: event?.type ?? "custom",
+    type: event?.type ?? "",
     coverEmoji: event?.cover_emoji ?? "✨",
     startDate: event?.start_date ?? "",
     endDate: event?.end_date ?? "",
@@ -45,10 +48,16 @@ function toForm(event) {
  * the modal handles validation, loading state, and closing.
  */
 export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
-  useLang();
+  const { lang } = useLang();
+  const { isDark } = useTheme();
   const [form, setForm] = useState(() => toForm(event));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  // Track whether the user explicitly chose an emoji, so we stop auto-deriving
+  // it from the type once they have.
+  const emojiTouched = useRef(false);
+  const pickerRef = useRef(null);
 
   // Re-seed the form whenever the modal opens or the target event changes.
   useEffect(() => {
@@ -56,24 +65,60 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
       setForm(toForm(event));
       setError("");
       setLoading(false);
+      setPickerOpen(false);
+      emojiTouched.current = false;
     }
   }, [isOpen, event]);
 
+  // Close on ESC (modal) / close the picker first if it's open.
   useEffect(() => {
     if (!isOpen) return;
-    const onKey = (e) => e.key === "Escape" && onClose();
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      if (pickerOpen) setPickerOpen(false);
+      else onClose();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, pickerOpen]);
+
+  // Close the emoji picker on outside-click.
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const onDoc = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target))
+        setPickerOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [pickerOpen]);
 
   if (!isOpen) return null;
 
   const setField = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
+  const onTypeChange = (value) =>
+    setForm((f) => ({
+      ...f,
+      type: value,
+      coverEmoji: emojiTouched.current ? f.coverEmoji : defaultEmojiForType(value),
+    }));
+
+  const applySuggestion = (s) => {
+    emojiTouched.current = true;
+    setForm((f) => ({ ...f, type: s.label, coverEmoji: s.emoji }));
+  };
+
+  const onPickEmoji = (emoji) => {
+    emojiTouched.current = true;
+    setField("coverEmoji", emoji.native);
+    setPickerOpen(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.title.trim() || !form.type || !form.startDate) {
+    if (!form.title.trim() || !form.type.trim() || !form.startDate) {
       setError("Please fill in the title, type, and start date.");
       return;
     }
@@ -85,9 +130,9 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
     try {
       await onSubmit({
         title: form.title.trim(),
-        type: form.type,
+        type: form.type.trim(),
         status: form.status,
-        cover_emoji: form.coverEmoji || TYPE_EMOJI[form.type] || "✨",
+        cover_emoji: form.coverEmoji || defaultEmojiForType(form.type) || "✨",
         start_date: form.startDate,
         end_date: form.endDate || null,
         budget: form.budget ? parseInt(form.budget, 10) : 0,
@@ -140,30 +185,29 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
             />
           </div>
 
-          {/* Type */}
+          {/* Type — free text */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
+            <label className="mb-1 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
               {t("editEvent.type")} <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {EVENT_TYPES.map((type) => {
-                const selected = form.type === type;
-                return (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setField("type", type)}
-                    className={`flex items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-sm font-medium transition ${
-                      selected
-                        ? "border-2 border-kiiya-primary bg-purple-50 text-kiiya-primary dark:bg-[#221F32]"
-                        : "border border-gray-200 text-kiiya-dark/70 hover:border-purple-300 dark:border-[#2D2A3E] dark:text-[#A89EC9]"
-                    }`}
-                  >
-                    <span>{TYPE_EMOJI[type]}</span>
-                    {t(`dashboard.eventTypes.${type}`)}
-                  </button>
-                );
-              })}
+            <input
+              type="text"
+              value={form.type}
+              onChange={(e) => onTypeChange(e.target.value)}
+              placeholder="e.g. Trip, Wedding, Anniversary, Custom..."
+              className={inputCls}
+            />
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {TYPE_SUGGESTIONS.map((s) => (
+                <button
+                  key={s.label}
+                  type="button"
+                  onClick={() => applySuggestion(s)}
+                  className="cursor-pointer rounded-full bg-purple-50 px-2.5 py-1 text-xs text-gray-600 transition hover:bg-purple-100 dark:bg-[#221F32] dark:text-[#A89EC9] dark:hover:bg-[#2D2A3E]"
+                >
+                  {s.emoji} {s.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -185,29 +229,33 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
             </select>
           </div>
 
-          {/* Cover emoji */}
+          {/* Cover emoji — emoji-mart picker */}
           <div>
             <label className="mb-2 block text-sm font-medium text-kiiya-dark dark:text-[#F0EEFF]">
               {t("editEvent.coverEmoji")}
             </label>
-            <div className="flex flex-wrap gap-2">
-              {EMOJI_OPTIONS.map((emoji) => {
-                const selected = form.coverEmoji === emoji;
-                return (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => setField("coverEmoji", emoji)}
-                    className={`flex h-10 w-10 items-center justify-center rounded-xl text-xl transition ${
-                      selected
-                        ? "border-2 border-kiiya-primary bg-purple-50 dark:bg-[#221F32]"
-                        : "border border-gray-200 hover:border-purple-300 dark:border-[#2D2A3E]"
-                    }`}
-                  >
-                    {emoji}
-                  </button>
-                );
-              })}
+            <div className="relative inline-block" ref={pickerRef}>
+              <button
+                type="button"
+                onClick={() => setPickerOpen((o) => !o)}
+                className="flex items-center gap-3 rounded-xl border border-purple-100 px-3 py-2 transition hover:bg-purple-50 dark:border-[#2D2A3E] dark:hover:bg-[#221F32]"
+              >
+                <span className="text-[40px] leading-none">{form.coverEmoji}</span>
+                <span className="text-sm font-medium text-kiiya-primary">Change</span>
+              </button>
+              {pickerOpen && (
+                <div className="absolute left-0 top-full z-30 mt-2">
+                  <Picker
+                    data={data}
+                    onEmojiSelect={onPickEmoji}
+                    theme={isDark ? "dark" : "light"}
+                    locale={lang === "id" ? "id" : "en"}
+                    previewPosition="none"
+                    skinTonePosition="none"
+                    maxFrequentRows={2}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
