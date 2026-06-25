@@ -81,6 +81,32 @@ export function useEvents() {
     toast.success("Event deleted.");
   };
 
+  // ── Computed values (memo-free; cheap derivations over a small array) ──
+  const upcomingEvents = events
+    .filter((e) => e.status === "upcoming")
+    .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+  const ongoingEvents = events.filter((e) => e.status === "ongoing");
+
+  const completedEvents = events.filter((e) => e.status === "completed");
+
+  const nextEvent = ongoingEvents[0] || upcomingEvents[0] || null;
+
+  const recentEvents = [...events]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 3);
+
+  const totalBudget = events.reduce((sum, e) => sum + (e.budget || 0), 0);
+
+  const daysUntil = (event) => {
+    if (!event?.start_date) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(event.start_date);
+    target.setHours(0, 0, 0, 0);
+    return Math.round((target - today) / 86400000);
+  };
+
   return {
     events,
     loading,
@@ -89,5 +115,12 @@ export function useEvents() {
     createEvent,
     updateEvent,
     deleteEvent,
+    upcomingEvents,
+    ongoingEvents,
+    completedEvents,
+    nextEvent,
+    recentEvents,
+    totalBudget,
+    daysUntil,
   };
 }
