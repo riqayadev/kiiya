@@ -38,7 +38,9 @@ export function useEventDetail(eventId) {
     async (id) => {
       const { data, error } = await supabase
         .from("events")
-        .select("*")
+        .select(
+          "id, user_id, title, type, status, cover_emoji, cover_image_url, start_date, end_date, location, budget, currency, description, is_private, created_at, updated_at"
+        )
         .eq("id", id)
         .single();
       if (error) throw error;
@@ -51,17 +53,21 @@ export function useEventDetail(eventId) {
     async (id) => {
       const { data: days, error: daysErr } = await supabase
         .from("itinerary_days")
-        .select("*")
+        .select("id, event_id, day_number, date, title, notes")
         .eq("event_id", id)
-        .order("day_number", { ascending: true });
+        .order("day_number", { ascending: true })
+        .limit(100);
       if (daysErr) throw daysErr;
 
       const { data: activities, error: actErr } = await supabase
         .from("itinerary_activities")
-        .select("*")
+        .select(
+          "id, day_id, event_id, title, description, location, start_time, end_time, category, estimated_cost, is_completed, sort_order"
+        )
         .eq("event_id", id)
         .order("start_time", { ascending: true, nullsFirst: true })
-        .order("sort_order", { ascending: true });
+        .order("sort_order", { ascending: true })
+        .limit(300);
       if (actErr) throw actErr;
 
       // Nest activities under their day.
@@ -77,9 +83,12 @@ export function useEventDetail(eventId) {
     async (id) => {
       const { data, error } = await supabase
         .from("expenses")
-        .select("*")
+        .select(
+          "id, event_id, user_id, activity_id, title, amount, category, date, notes, receipt_url"
+        )
         .eq("event_id", id)
-        .order("date", { ascending: false });
+        .order("date", { ascending: false })
+        .limit(200);
       if (error) throw error;
       return data || [];
     },
@@ -90,10 +99,11 @@ export function useEventDetail(eventId) {
     async (id) => {
       const { data, error } = await supabase
         .from("checklists")
-        .select("*")
+        .select("id, event_id, title, is_completed, category, sort_order")
         .eq("event_id", id)
         .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+        .limit(200);
       if (error) throw error;
       return data || [];
     },
@@ -104,9 +114,10 @@ export function useEventDetail(eventId) {
     async (id) => {
       const { data, error } = await supabase
         .from("event_members")
-        .select("*")
+        .select("id, event_id, email, role, status, user_id")
         .eq("event_id", id)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+        .limit(100);
       if (error) throw error;
       return data || [];
     },

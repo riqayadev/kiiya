@@ -22,7 +22,9 @@ export function useEvents() {
     try {
       const { data, error } = await supabaseRef.current
         .from("events")
-        .select("*")
+        .select(
+          "id, title, type, status, cover_emoji, cover_image_url, start_date, end_date, location, budget, currency, is_private, created_at"
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       setEvents(data || []);

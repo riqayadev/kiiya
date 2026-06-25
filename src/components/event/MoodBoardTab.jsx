@@ -32,10 +32,13 @@ export default function MoodBoardTab({ eventId, eventType }) {
     (async () => {
       const { data, error } = await supabase
         .from("mood_board_items")
-        .select("*")
+        .select(
+          "id, event_id, type, content, label, source, unsplash_author, unsplash_author_url, sort_order"
+        )
         .eq("event_id", eventId)
         .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+        .limit(100);
       if (!active) return;
       if (error) toast.error(error.message);
       setItems(data || []);

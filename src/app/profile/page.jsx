@@ -128,7 +128,9 @@ export default function ProfilePage() {
     (async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("*")
+        .select(
+          "id, full_name, username, bio, avatar_url, theme_color, pin_hash, created_at"
+        )
         .eq("id", user.id)
         .single();
       if (!active) return;

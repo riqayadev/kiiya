@@ -159,7 +159,7 @@ export default function Dashboard() {
     (async () => {
       const { data } = await supabaseRef.current
         .from("profiles")
-        .select("*")
+        .select("full_name")
         .eq("id", user.id)
         .single();
       if (active) setProfile(data || {});

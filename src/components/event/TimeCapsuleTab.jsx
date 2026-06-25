@@ -45,7 +45,7 @@ export default function TimeCapsuleTab({ event }) {
     (async () => {
       const { data, error } = await supabase
         .from("time_capsules")
-        .select("*")
+        .select("id, event_id, user_id, message, reveal_date, opened_at, created_at")
         .eq("event_id", event.id)
         .order("created_at", { ascending: false })
         .limit(1)

@@ -58,8 +58,11 @@ export default function WishlistPage() {
     (async () => {
       const { data, error } = await supabase
         .from("wishes")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select(
+          "id, user_id, title, type, cover_emoji, cover_image_url, description, priority, converted_event_id, created_at"
+        )
+        .order("created_at", { ascending: false })
+        .limit(100);
       if (!active) return;
       if (error) toast.error(error.message);
       setWishes(data || []);

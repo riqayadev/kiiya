@@ -36,6 +36,7 @@ export default function WrappedPage() {
   const [year, setYear] = useState(currentYear);
   const [events, setEvents] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [monthRows, setMonthRows] = useState([]); // [{ month, count }] from RPC
   const [profileName, setProfileName] = useState("");
   const [unlocked, setUnlocked] = useState({});
   const [loading, setLoading] = useState(true);
@@ -75,12 +76,10 @@ export default function WrappedPage() {
     let active = true;
     setLoading(true);
     (async () => {
-      const [{ data: ev }, { data: ex }] = await Promise.all([
+      const [{ data: ev }, { data: ex }, { data: months }] = await Promise.all([
         supabase
           .from("events")
-          .select(
-            "id, title, type, status, location, budget, start_date, end_date"
-          )
+          .select("type, status, location, budget")
           .eq("user_id", user.id)
           .gte("start_date", `${year}-01-01`)
           .lte("start_date", `${year}-12-31`),
@@ -90,10 +89,17 @@ export default function WrappedPage() {
           .eq("user_id", user.id)
           .gte("date", `${year}-01-01`)
           .lte("date", `${year}-12-31`),
+        // Per-month counts come from the DB (GROUP BY) instead of fetching
+        // every event's start_date just to bucket it client-side.
+        supabase.rpc("get_events_by_month", {
+          p_user_id: user.id,
+          p_year: year,
+        }),
       ]);
       if (!active) return;
       setEvents(ev || []);
       setExpenses(ex || []);
+      setMonthRows(months || []);
       setLoading(false);
     })();
     return () => {
@@ -112,7 +118,6 @@ export default function WrappedPage() {
     const byStatus = { completed: 0, upcoming: 0, ongoing: 0, archived: 0 };
     const typeCounts = {};
     const locations = new Set();
-    const perMonth = Array(12).fill(0);
     let totalBudget = 0;
 
     for (const e of events) {
@@ -128,11 +133,14 @@ export default function WrappedPage() {
           .filter(Boolean)
           .forEach((loc) => locations.add(loc));
       }
-      if (e.start_date) {
-        const m = new Date(e.start_date).getMonth();
-        if (m >= 0 && m <= 11) perMonth[m] += 1;
-      }
       totalBudget += e.budget || 0;
+    }
+
+    // Per-month counts come from the get_events_by_month RPC (month is 1-12).
+    const perMonth = Array(12).fill(0);
+    for (const row of monthRows) {
+      const idx = Number(row.month) - 1;
+      if (idx >= 0 && idx <= 11) perMonth[idx] = Number(row.count) || 0;
     }
 
     const topType =
@@ -166,7 +174,7 @@ export default function WrappedPage() {
       totalSpent,
       statusMax,
     };
-  }, [events, expenses]);
+  }, [events, expenses, monthRows]);
 
   // Achievements unlocked within the selected year.
   const yearAchievements = useMemo(() => {

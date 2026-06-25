@@ -42,15 +42,13 @@ export default function OnThisDayWidget() {
       const day = today.getDate();
       const year = today.getFullYear();
 
-      const { data } = await supabase
-        .from("events")
-        .select(
-          "id, title, type, cover_emoji, cover_image_url, start_date, end_date, status"
-        )
-        .eq("user_id", user.id)
-        .or(
-          `start_date.gte.${year - 10}-01-01,end_date.gte.${year - 10}-01-01`
-        );
+      // Exact month+day match (in a previous year) is done in the DB rather
+      // than fetching a 10-year window and filtering on the client.
+      const { data } = await supabase.rpc("get_on_this_day", {
+        p_user_id: user.id,
+        p_month: month,
+        p_day: day,
+      });
 
       if (!active) return;
 
