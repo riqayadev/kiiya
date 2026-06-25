@@ -158,6 +158,8 @@ export default function PinLockScreen({ pinHash, profile, user, onUnlock, onSign
           <img
             src={profile.avatar_url}
             alt={name}
+            loading="lazy"
+            decoding="async"
             className="h-16 w-16 rounded-full object-cover ring-2 ring-white/15"
           />
         ) : (

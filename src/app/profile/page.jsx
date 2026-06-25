@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import { t } from "@/utils/i18n";
 import { THEME_COLORS, applyThemeColor, hashPin } from "@/utils/theme";
 import { toast } from "@/components/ui/Toast";
+import Skeleton from "@/components/ui/Skeleton";
 import InlineEdit from "@/components/ui/InlineEdit";
 import {
   ACHIEVEMENTS,
@@ -304,8 +305,26 @@ export default function ProfilePage() {
   if (loadingProfile) {
     return (
       <AppLayout>
-        <div className="flex min-h-[60vh] items-center justify-center text-kiiya-primary">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+            {/* Left: identity card */}
+            <aside className="lg:w-[280px] lg:flex-shrink-0">
+              <div className="rounded-3xl bg-white p-6 dark:bg-[#1E1B2E]">
+                <div className="flex justify-center">
+                  <Skeleton className="h-24 w-24 rounded-full" />
+                </div>
+                <Skeleton className="mx-auto mt-4 h-5 w-32" />
+                <Skeleton className="mx-auto mt-2 h-4 w-24" />
+                <Skeleton className="mx-auto mt-4 h-4 w-40" />
+              </div>
+            </aside>
+
+            {/* Right: content cards */}
+            <div className="flex-1 space-y-6">
+              <Skeleton className="h-48 rounded-2xl" />
+              <Skeleton className="h-48 rounded-2xl" />
+            </div>
+          </div>
         </div>
       </AppLayout>
     );
@@ -337,6 +356,8 @@ export default function ProfilePage() {
                       <img
                         src={profile.avatar_url}
                         alt={displayName}
+                        loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-cover"
                       />
                     ) : (

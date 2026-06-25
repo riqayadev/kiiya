@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { X, Loader2 } from "lucide-react";
-import Picker from "@emoji-mart/react";
-import data from "@emoji-mart/data";
+import EmojiPicker from "@/components/ui/EmojiPicker";
 import { useLang } from "@/hooks/useLang";
 import { useTheme } from "@/hooks/useTheme";
 import { t } from "@/utils/i18n";
@@ -245,8 +244,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
               </button>
               {pickerOpen && (
                 <div className="absolute left-0 top-full z-30 mt-2">
-                  <Picker
-                    data={data}
+                  <EmojiPicker
                     onEmojiSelect={onPickEmoji}
                     theme={isDark ? "dark" : "light"}
                     locale={lang === "id" ? "id" : "en"}

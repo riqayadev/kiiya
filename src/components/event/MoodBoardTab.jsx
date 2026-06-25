@@ -277,7 +277,7 @@ export default function MoodBoardTab({ eventId, eventType }) {
               return (
                 <ItemShell key={item.id} item={item} index={index}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.content} alt={item.label || "Mood image"} loading="lazy" className="w-full object-cover" />
+                  <img src={item.content} alt={item.label || "Mood image"} loading="lazy" decoding="async" className="w-full object-cover" />
                   {(item.label || item.unsplash_author) && (
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
                       {item.label && <p className="truncate text-xs font-medium text-white">{item.label}</p>}

@@ -140,6 +140,7 @@ export default function UnsplashModal({
                   src={url}
                   alt={`${query} ${i + 1}`}
                   loading="lazy"
+                  decoding="async"
                   className="relative h-full w-full object-cover transition group-hover:scale-105"
                   onError={(e) => {
                     e.currentTarget.style.opacity = "0.3";

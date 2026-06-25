@@ -94,6 +94,8 @@ export default function OnThisDayWidget() {
                 <img
                   src={event.cover_image_url}
                   alt={event.title}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : (

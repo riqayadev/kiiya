@@ -28,6 +28,7 @@ import { formatRupiah, formatDateRange } from "@/utils/format";
 import NewEventModal from "@/components/ui/NewEventModal";
 import EditEventModal from "@/components/ui/EditEventModal";
 import OnboardingModal from "@/components/ui/OnboardingModal";
+import Skeleton from "@/components/ui/Skeleton";
 import { toast } from "@/components/ui/Toast";
 
 const FILTERS = ["all", "upcoming", "ongoing", "completed"];
@@ -73,11 +74,20 @@ function EmptyState({ emoji, title, subtitle, action }) {
   );
 }
 
-function EventsSkeleton() {
+function EventsSkeleton({ view }) {
+  if (view === "grid") {
+    return (
+      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-52 rounded-2xl" />
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="mt-6 space-y-2">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="kiiya-skeleton h-[72px] rounded-2xl" />
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Skeleton key={i} className="h-16 rounded-xl" />
       ))}
     </div>
   );
@@ -249,6 +259,8 @@ function EventRow({ event, onOpen, onEdit, onStatus, onDelete }) {
           <img
             src={event.cover_image_url}
             alt={event.title}
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover"
           />
         ) : (
@@ -322,6 +334,8 @@ function EventCard({ event, onEdit, onStatus, onDelete }) {
             <img
               src={event.cover_image_url}
               alt={event.title}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
           </div>
@@ -635,7 +649,7 @@ export default function Planning() {
 
       {/* E) CONTENT */}
       {loading ? (
-        <EventsSkeleton />
+        <EventsSkeleton view={view} />
       ) : error ? (
         <div className="mt-12 flex flex-col items-center justify-center rounded-2xl border border-red-100 bg-red-50/50 py-16 text-center dark:border-red-500/20 dark:bg-red-500/5">
           <AlertCircle className="h-10 w-10 text-red-500" />

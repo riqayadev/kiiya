@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { X, Loader2, ImagePlus, Trash2 } from "lucide-react";
-import Picker from "@emoji-mart/react";
-import data from "@emoji-mart/data";
+import EmojiPicker from "@/components/ui/EmojiPicker";
 import { useLang } from "@/hooks/useLang";
 import { useTheme } from "@/hooks/useTheme";
 import { t } from "@/utils/i18n";
@@ -218,8 +217,7 @@ export default function WishModal({ isOpen, wish, onClose, onSave }) {
                 </button>
                 {pickerOpen && (
                   <div className="absolute left-0 top-full z-30 mt-2">
-                    <Picker
-                      data={data}
+                    <EmojiPicker
                       onEmojiSelect={onPickEmoji}
                       theme={isDark ? "dark" : "light"}
                       locale={lang === "id" ? "id" : "en"}
@@ -239,7 +237,7 @@ export default function WishModal({ isOpen, wish, onClose, onSave }) {
               {form.coverImageUrl ? (
                 <div className="relative h-[58px] w-24 overflow-hidden rounded-xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={form.coverImageUrl} alt="Cover" className="h-full w-full object-cover" />
+                  <img src={form.coverImageUrl} alt="Cover" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   <button
                     type="button"
                     onClick={() => setField("coverImageUrl", null)}

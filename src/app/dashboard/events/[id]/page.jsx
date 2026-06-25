@@ -18,15 +18,25 @@ import { t } from "@/utils/i18n";
 import { getEventColor, statusColors } from "@/utils/eventColors";
 import { formatRupiah, formatDateRange, formatDateShort } from "@/utils/format";
 import InlineEdit from "@/components/ui/InlineEdit";
+import dynamic from "next/dynamic";
 import ItineraryTab from "@/components/event/ItineraryTab";
 import BudgetTab from "@/components/event/BudgetTab";
 import ChecklistTab from "@/components/event/ChecklistTab";
 import MembersTab from "@/components/event/MembersTab";
-import MoodBoardTab from "@/components/event/MoodBoardTab";
-import TimeCapsuleTab from "@/components/event/TimeCapsuleTab";
 import UnsplashModal from "@/components/ui/UnsplashModal";
 import AsyncErrorBoundary from "@/components/ui/AsyncErrorBoundary";
 import { toast } from "@/components/ui/Toast";
+
+// Mood Board and Time Capsule are only seen when their tab is opened, so they
+// are code-split out of the main event-detail bundle (the Mood Board also pulls
+// in the Unsplash flow).
+const MoodBoardTab = dynamic(() => import("@/components/event/MoodBoardTab"), {
+  ssr: false,
+});
+const TimeCapsuleTab = dynamic(
+  () => import("@/components/event/TimeCapsuleTab"),
+  { ssr: false }
+);
 
 const TABS = [
   { key: "itinerary", label: "eventDetail.tabs.itinerary" },
@@ -139,6 +149,8 @@ export default function EventDetailPage({ params }) {
           <img
             src={event.cover_image_url}
             alt={event.title}
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover"
           />
         ) : (

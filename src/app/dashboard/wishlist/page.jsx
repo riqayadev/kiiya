@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Star, Loader2, Pencil, Trash2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Plus, Star, Pencil, Trash2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useLang } from "@/hooks/useLang";
 import { useAuth } from "@/hooks/useAuth";
 import { useEvents } from "@/hooks/useEvents";
@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { t } from "@/utils/i18n";
 import { getEventColor } from "@/utils/eventColors";
 import { toast } from "@/components/ui/Toast";
+import Skeleton from "@/components/ui/Skeleton";
 import WishModal from "@/components/ui/WishModal";
 import NewEventModal from "@/components/ui/NewEventModal";
 
@@ -23,7 +24,7 @@ function Thumb({ wish }) {
   if (wish.cover_image_url) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={wish.cover_image_url} alt={wish.title} loading="lazy" className="h-full w-full object-cover" />
+      <img src={wish.cover_image_url} alt={wish.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
     );
   }
   return (
@@ -203,8 +204,10 @@ export default function WishlistPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex justify-center py-20 text-kiiya-primary">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-52 rounded-2xl" />
+          ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">

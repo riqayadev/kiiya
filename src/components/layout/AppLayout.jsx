@@ -139,6 +139,8 @@ function SidebarContent({ user, profile, signOut, pathname, onNavigate }) {
               <img
                 src={profile.avatar_url}
                 alt={name}
+                loading="lazy"
+                decoding="async"
                 className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
               />
             ) : (
@@ -305,6 +307,8 @@ export default function AppLayout({ children }) {
             <img
               src={profile.avatar_url}
               alt={name}
+              loading="lazy"
+              decoding="async"
               className="h-8 w-8 rounded-full object-cover"
             />
           ) : (

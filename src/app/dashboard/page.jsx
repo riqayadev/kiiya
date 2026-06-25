@@ -113,6 +113,8 @@ function Thumb({ event }) {
       <img
         src={event.cover_image_url}
         alt={event.title}
+        loading="lazy"
+        decoding="async"
         className="h-11 w-11 flex-shrink-0 rounded-xl object-cover"
       />
     );
