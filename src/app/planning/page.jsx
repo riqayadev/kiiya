@@ -84,6 +84,7 @@ function EmptyIllustration() {
 function EventMenu({ event, onEdit, onStatus, onDelete, dark }) {
   const [open, setOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -92,6 +93,7 @@ function EventMenu({ event, onEdit, onStatus, onDelete, dark }) {
       if (ref.current && !ref.current.contains(e.target)) {
         setOpen(false);
         setStatusOpen(false);
+        setConfirmDelete(false);
       }
     };
     document.addEventListener("mousedown", onDoc);
@@ -108,6 +110,7 @@ function EventMenu({ event, onEdit, onStatus, onDelete, dark }) {
       <button
         onClick={(e) => {
           stop(e);
+          setConfirmDelete(false);
           setOpen((o) => !o);
         }}
         aria-label="Event menu"
@@ -125,68 +128,102 @@ function EventMenu({ event, onEdit, onStatus, onDelete, dark }) {
           className="absolute right-0 top-9 z-20 w-48 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg dark:border-[#2D2A3E] dark:bg-[#1A1825]"
           onClick={stop}
         >
-          <button
-            onClick={(e) => {
-              stop(e);
-              setOpen(false);
-              onEdit();
-            }}
-            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50 dark:text-[#F0EEFF] dark:hover:bg-[#221F32]"
-          >
-            <Pencil className="h-4 w-4" />
-            {t("eventDetail.edit")}
-          </button>
-
-          <div
-            className="relative"
-            onMouseEnter={() => setStatusOpen(true)}
-            onMouseLeave={() => setStatusOpen(false)}
-          >
-            <button
-              onClick={(e) => {
-                stop(e);
-                setStatusOpen((s) => !s);
-              }}
-              className="flex w-full items-center justify-between px-4 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50 dark:text-[#F0EEFF] dark:hover:bg-[#221F32]"
-            >
-              <span>{t("editEvent.status")}</span>
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-            </button>
-            {statusOpen && (
-              <div className="absolute right-full top-0 mr-1 w-40 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg dark:border-[#2D2A3E] dark:bg-[#1A1825]">
-                {STATUSES.map((s) => (
-                  <button
-                    key={s}
-                    onClick={(e) => {
-                      stop(e);
-                      setOpen(false);
-                      setStatusOpen(false);
-                      if (s !== event.status) onStatus(s);
-                    }}
-                    className={`flex w-full items-center px-4 py-2 text-sm transition hover:bg-purple-50 dark:hover:bg-[#221F32] ${
-                      s === event.status
-                        ? "font-semibold text-kiiya-primary"
-                        : "text-kiiya-dark dark:text-[#F0EEFF]"
-                    }`}
-                  >
-                    {t(`dashboard.status.${s}`)}
-                  </button>
-                ))}
+          {confirmDelete ? (
+            // Inline delete confirmation (replaces the menu items).
+            <div className="px-3 py-2.5">
+              <p className="mb-2.5 text-sm font-medium text-red-600 dark:text-red-400">
+                Delete this event?
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={(e) => {
+                    stop(e);
+                    setConfirmDelete(false);
+                    setOpen(false);
+                  }}
+                  className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 dark:border-[#2D2A3E] dark:text-[#A89EC9] dark:hover:bg-[#221F32]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={(e) => {
+                    stop(e);
+                    setConfirmDelete(false);
+                    setOpen(false);
+                    onDelete();
+                  }}
+                  className="flex-1 rounded-lg bg-red-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-600"
+                >
+                  Delete
+                </button>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={(e) => {
+                  stop(e);
+                  setOpen(false);
+                  onEdit();
+                }}
+                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50 dark:text-[#F0EEFF] dark:hover:bg-[#221F32]"
+              >
+                <Pencil className="h-4 w-4" />
+                {t("eventDetail.edit")}
+              </button>
 
-          <button
-            onClick={(e) => {
-              stop(e);
-              setOpen(false);
-              onDelete();
-            }}
-            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-500 transition hover:bg-red-50 dark:hover:bg-red-500/10"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete
-          </button>
+              <div
+                className="relative"
+                onMouseEnter={() => setStatusOpen(true)}
+                onMouseLeave={() => setStatusOpen(false)}
+              >
+                <button
+                  onClick={(e) => {
+                    stop(e);
+                    setStatusOpen((s) => !s);
+                  }}
+                  className="flex w-full items-center justify-between px-4 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50 dark:text-[#F0EEFF] dark:hover:bg-[#221F32]"
+                >
+                  <span>{t("editEvent.status")}</span>
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </button>
+                {statusOpen && (
+                  <div className="absolute right-full top-0 mr-1 w-40 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg dark:border-[#2D2A3E] dark:bg-[#1A1825]">
+                    {STATUSES.map((s) => (
+                      <button
+                        key={s}
+                        onClick={(e) => {
+                          stop(e);
+                          setOpen(false);
+                          setStatusOpen(false);
+                          if (s !== event.status) onStatus(s);
+                        }}
+                        className={`flex w-full items-center px-4 py-2 text-sm transition hover:bg-purple-50 dark:hover:bg-[#221F32] ${
+                          s === event.status
+                            ? "font-semibold text-kiiya-primary"
+                            : "text-kiiya-dark dark:text-[#F0EEFF]"
+                        }`}
+                      >
+                        {t(`dashboard.status.${s}`)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={(e) => {
+                  stop(e);
+                  setStatusOpen(false);
+                  setConfirmDelete(true);
+                }}
+                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-500 transition hover:bg-red-50 dark:hover:bg-red-500/10"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -389,8 +426,9 @@ export default function Planning() {
     { icon: CheckCircle, value: stats.completed, label: t("dashboard.stats.completed") },
   ];
 
+  // Confirmation now happens inline inside the event menu; here we just run the
+  // delete. deleteEvent() removes it from local state and toasts on success.
   const handleDelete = async (event) => {
-    if (!confirm(`Delete "${event.title}"? This cannot be undone.`)) return;
     try {
       await deleteEvent(event.id);
     } catch (e) {
