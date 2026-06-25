@@ -239,6 +239,11 @@ export default function AppLayout({ children }) {
         .then(({ data }) => {
           if (data) setProfile(data);
           setProfileLoaded(true);
+        })
+        .catch(() => {
+          // Don't trap the user on the loader if the profile fetch fails —
+          // fall through to the app shell (PIN gate degrades to "no PIN").
+          setProfileLoaded(true);
         });
     };
     load();

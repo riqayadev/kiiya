@@ -162,6 +162,17 @@ export default function ProfilePage() {
   const onAvatarPick = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Validate before uploading: images only, max 5MB.
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be smaller than 5MB.");
+      e.target.value = "";
+      return;
+    }
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();

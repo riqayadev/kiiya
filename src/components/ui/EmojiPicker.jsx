@@ -33,9 +33,14 @@ export default function EmojiPicker(props) {
 
   useEffect(() => {
     let active = true;
-    import("@emoji-mart/data").then((mod) => {
-      if (active) setData(mod.default);
-    });
+    import("@emoji-mart/data")
+      .then((mod) => {
+        if (active) setData(mod.default);
+      })
+      .catch(() => {
+        // Dynamic chunk failed to load (offline / network) — leave the
+        // placeholder visible rather than throw an unhandled rejection.
+      });
     return () => {
       active = false;
     };
