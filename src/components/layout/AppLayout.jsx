@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   MapPin,
   CalendarDays,
+  Star,
   UserCircle,
   LogOut,
   Menu,
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, key: "dashboard.nav.dashboard" },
   { to: "/planning", icon: MapPin, key: "dashboard.nav.planning" },
   { to: "/calendar", icon: CalendarDays, key: "dashboard.nav.calendar" },
+  { to: "/dashboard/wishlist", icon: Star, key: "dashboard.nav.wishlist" },
 ];
 
 function getDisplayName(user, profile) {

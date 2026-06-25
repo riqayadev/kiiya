@@ -22,6 +22,7 @@ import ItineraryTab from "@/components/event/ItineraryTab";
 import BudgetTab from "@/components/event/BudgetTab";
 import ChecklistTab from "@/components/event/ChecklistTab";
 import MembersTab from "@/components/event/MembersTab";
+import MoodBoardTab from "@/components/event/MoodBoardTab";
 import UnsplashModal from "@/components/ui/UnsplashModal";
 import { toast } from "@/components/ui/Toast";
 
@@ -30,6 +31,7 @@ const TABS = [
   { key: "budget", label: "eventDetail.tabs.budget" },
   { key: "checklist", label: "eventDetail.tabs.checklist" },
   { key: "members", label: "eventDetail.tabs.members" },
+  { key: "moodboard", label: "eventDetail.tabs.moodboard" },
 ];
 
 const STATUSES = ["upcoming", "ongoing", "completed", "archived"];
@@ -381,6 +383,9 @@ export default function EventDetailPage({ params }) {
             addMember={detail.addMember}
             removeMember={detail.removeMember}
           />
+        )}
+        {activeTab === "moodboard" && (
+          <MoodBoardTab eventId={event.id} eventType={event.type} />
         )}
       </div>
 

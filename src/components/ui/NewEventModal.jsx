@@ -43,6 +43,7 @@ export default function NewEventModal({
   onSuccess,
   createEvent,
   initialDate,
+  initialValues,
 }) {
   const { lang } = useLang();
   const { isDark } = useTheme();
@@ -60,14 +61,19 @@ export default function NewEventModal({
   // the start date (used by the calendar's empty-day click).
   useEffect(() => {
     if (isOpen) {
-      setForm({ ...EMPTY_FORM, startDate: initialDate || "" });
+      setForm({
+        ...EMPTY_FORM,
+        startDate: initialDate || "",
+        ...(initialValues || {}),
+      });
       setError("");
       setLoading(false);
       setPickerOpen(false);
-      emojiTouched.current = false;
+      // Keep a prefilled emoji (e.g. converting a wish) instead of re-deriving.
+      emojiTouched.current = Boolean(initialValues?.coverEmoji);
       setTimeout(() => titleRef.current?.focus(), 50);
     }
-  }, [isOpen, initialDate]);
+  }, [isOpen, initialDate, initialValues]);
 
   // Close on ESC (modal) / close the picker first if it's open.
   useEffect(() => {
