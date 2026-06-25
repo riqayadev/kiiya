@@ -5,6 +5,8 @@ import AchievementToaster from "@/components/ui/AchievementToast";
 import NavigationProgress from "@/components/ui/NavigationProgress";
 import ServiceWorkerRegister from "@/components/ui/ServiceWorkerRegister";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
+import GlobalErrorListeners from "@/components/ui/GlobalErrorListeners";
+import DiagnosticsPanel from "@/components/ui/DiagnosticsPanel";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -88,10 +90,12 @@ export default function RootLayout({ children }) {
       </head>
       <body className="font-sans antialiased">
         <NavigationProgress />
+        <GlobalErrorListeners />
         <ErrorBoundary>{children}</ErrorBoundary>
         <Toaster />
         <AchievementToaster />
         <ServiceWorkerRegister />
+        <DiagnosticsPanel />
       </body>
     </html>
   );

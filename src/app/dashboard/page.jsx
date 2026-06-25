@@ -23,6 +23,7 @@ import { ACHIEVEMENTS, getUnlocked } from "@/utils/achievements";
 import NewEventModal from "@/components/ui/NewEventModal";
 import OnThisDayWidget from "@/components/ui/OnThisDayWidget";
 import AsyncErrorBoundary from "@/components/ui/AsyncErrorBoundary";
+import { perf } from "@/utils/perf";
 
 const GREETINGS = {
   morning: "Good morning",
@@ -171,6 +172,19 @@ export default function Dashboard() {
   useEffect(() => {
     setUnlocked(getUnlocked());
   }, []);
+
+  // Perf: measure dashboard data load (start on mount, end when loading clears).
+  const perfDone = useRef(false);
+  useEffect(() => {
+    perf.mark("dashboard-start");
+  }, []);
+  useEffect(() => {
+    if (!loading && !perfDone.current) {
+      perfDone.current = true;
+      perf.mark("dashboard-end");
+      perf.measure("dashboard-load", "dashboard-start", "dashboard-end");
+    }
+  }, [loading]);
 
   const displayName =
     profile?.full_name ||

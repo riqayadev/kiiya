@@ -1,6 +1,7 @@
 "use client";
 import { Component } from "react";
 import { AlertTriangle } from "lucide-react";
+import { logger } from "@/utils/logger";
 
 /**
  * Lightweight error boundary for individual sections (tabs, widgets). A crash
@@ -23,6 +24,9 @@ export default class AsyncErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
+    logger.error("AsyncErrorBoundary caught an error", error, {
+      componentStack: errorInfo?.componentStack,
+    });
     // eslint-disable-next-line no-console
     console.error("AsyncErrorBoundary caught an error:", error, errorInfo);
   }

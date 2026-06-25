@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/utils/logger";
 
 /**
  * Tracks the Supabase auth session on the client.
@@ -20,9 +21,10 @@ export function useAuth() {
         setUser(data.session?.user ?? null);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
         // Network failure resolving the session — don't leave consumers stuck
         // in a perpetual loading state; treat as signed-out.
+        logger.error("Auth session fetch failed", err);
         setSession(null);
         setUser(null);
         setLoading(false);

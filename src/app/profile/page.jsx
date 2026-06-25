@@ -12,11 +12,21 @@ import { THEME_COLORS, applyThemeColor, hashPin } from "@/utils/theme";
 import { toast } from "@/components/ui/Toast";
 import Skeleton from "@/components/ui/Skeleton";
 import InlineEdit from "@/components/ui/InlineEdit";
+import { OPEN_DIAGNOSTICS_EVENT } from "@/components/ui/DiagnosticsPanel";
 import {
   ACHIEVEMENTS,
   getUnlocked,
   ACHIEVEMENT_EVENT,
 } from "@/utils/achievements";
+
+const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || "dev";
+const BUILD_DATE = process.env.NEXT_PUBLIC_BUILD_TIME
+  ? new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
+  : "—";
 
 // ── Premium card shell (light + intentional dark variants) ──
 function Card({ title, action, children }) {
@@ -78,6 +88,19 @@ export default function ProfilePage() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef(null);
+  const versionClicks = useRef([]);
+
+  // Easter egg: 5 rapid clicks on the version string opens the diagnostics panel.
+  const onVersionClick = () => {
+    const now = Date.now();
+    versionClicks.current = [...versionClicks.current, now].filter(
+      (tms) => now - tms < 1500
+    );
+    if (versionClicks.current.length >= 5) {
+      versionClicks.current = [];
+      window.dispatchEvent(new Event(OPEN_DIAGNOSTICS_EVENT));
+    }
+  };
 
   // Password
   const [pwd, setPwd] = useState({ next: "", confirm: "" });
@@ -731,6 +754,15 @@ export default function ProfilePage() {
             </Card>
           </div>
         </div>
+
+        {/* Version stamp — no label; clicking 5× rapidly opens diagnostics. */}
+        <button
+          type="button"
+          onClick={onVersionClick}
+          className="mx-auto mt-10 block select-none text-center text-[11px] text-gray-300 transition dark:text-white/20"
+        >
+          v{APP_VERSION} · {BUILD_DATE}
+        </button>
       </div>
     </AppLayout>
   );

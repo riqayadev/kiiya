@@ -1,5 +1,6 @@
 "use client";
 import { Component } from "react";
+import { logger } from "@/utils/logger";
 
 /**
  * App-wide error boundary. Catches uncaught render errors anywhere below it and
@@ -23,6 +24,9 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     this.setState({ errorInfo });
+    logger.error("ErrorBoundary caught an error", error, {
+      componentStack: errorInfo?.componentStack,
+    });
     // Surface in the console for debugging / log capture.
     // eslint-disable-next-line no-console
     console.error("ErrorBoundary caught an error:", error, errorInfo);

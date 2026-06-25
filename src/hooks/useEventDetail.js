@@ -7,6 +7,8 @@ import {
   checkItineraryAchievement,
   checkChecklistAchievement,
 } from "@/utils/achievements";
+import { logger } from "@/utils/logger";
+import { perf } from "@/utils/perf";
 
 /**
  * Loads everything needed by the Event Detail page and exposes the CRUD
@@ -115,6 +117,7 @@ export function useEventDetail(eventId) {
     if (!eventId) return;
     setLoading(true);
     setError(null);
+    perf.mark("event-detail-start");
     try {
       const [ev, days, exp, chk, mem] = await Promise.all([
         fetchEvent(eventId),
@@ -129,9 +132,12 @@ export function useEventDetail(eventId) {
       setChecklist(chk);
       setMembers(mem);
     } catch (err) {
+      logger.error("Failed to load event detail", err, { eventId });
       setError(err.message || "Failed to load event");
     } finally {
       setLoading(false);
+      perf.mark("event-detail-end");
+      perf.measure("event-detail-load", "event-detail-start", "event-detail-end");
     }
   }, [
     eventId,

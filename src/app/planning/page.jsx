@@ -30,6 +30,7 @@ import EditEventModal from "@/components/ui/EditEventModal";
 import OnboardingModal from "@/components/ui/OnboardingModal";
 import Skeleton from "@/components/ui/Skeleton";
 import { toast } from "@/components/ui/Toast";
+import { perf } from "@/utils/perf";
 
 const FILTERS = ["all", "upcoming", "ongoing", "completed"];
 const STATUSES = ["upcoming", "ongoing", "completed", "archived"];
@@ -388,6 +389,19 @@ export default function Planning() {
   const [showNewEventModal, setShowNewEventModal] = useState(false);
   const [editEvent, setEditEvent] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Perf: measure planning data load.
+  const perfDone = useRef(false);
+  useEffect(() => {
+    perf.mark("planning-start");
+  }, []);
+  useEffect(() => {
+    if (!loading && !perfDone.current) {
+      perfDone.current = true;
+      perf.mark("planning-end");
+      perf.measure("planning-load", "planning-start", "planning-end");
+    }
+  }, [loading]);
 
   // Show onboarding once, on first visit.
   useEffect(() => {

@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/Toast";
 import { checkEventAchievements } from "@/utils/achievements";
+import { logger } from "@/utils/logger";
 
 export function useEvents() {
   const [events, setEvents] = useState([]);
@@ -26,6 +27,7 @@ export function useEvents() {
       if (error) throw error;
       setEvents(data || []);
     } catch (err) {
+      logger.error("Failed to fetch events", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -48,7 +50,10 @@ export function useEvents() {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      logger.error("Failed to create event", error);
+      throw error;
+    }
     const next = [data, ...events];
     setEvents(next);
     toast.success("Event created!");
@@ -64,7 +69,10 @@ export function useEvents() {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      logger.error("Failed to update event", error);
+      throw error;
+    }
     setEvents((prev) => prev.map((e) => (e.id === id ? data : e)));
     toast.success("Changes saved!");
     return data;
@@ -76,7 +84,10 @@ export function useEvents() {
       .delete()
       .eq("id", id);
 
-    if (error) throw error;
+    if (error) {
+      logger.error("Failed to delete event", error);
+      throw error;
+    }
     setEvents((prev) => prev.filter((e) => e.id !== id));
     toast.success("Event deleted.");
   };

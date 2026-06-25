@@ -15,6 +15,7 @@ import { t } from "@/utils/i18n";
 import { getEventColor, statusColors } from "@/utils/eventColors";
 import { formatDateRange } from "@/utils/format";
 import { toast } from "@/components/ui/Toast";
+import { perf } from "@/utils/perf";
 
 const VIEWS = [
   { key: "dayGridMonth", label: "calendar.month" },
@@ -33,12 +34,25 @@ function addDays(dateStr, n) {
 export default function CalendarClient() {
   useLang();
   const router = useRouter();
-  const { events, createEvent, updateEvent, fetchEvents } = useEvents();
+  const { events, loading, createEvent, updateEvent, fetchEvents } = useEvents();
   const calendarRef = useRef(null);
   const [view, setView] = useState("dayGridMonth");
   const [title, setTitle] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [initialDate, setInitialDate] = useState("");
+
+  // Perf: measure calendar data load.
+  const perfDone = useRef(false);
+  useEffect(() => {
+    perf.mark("calendar-start");
+  }, []);
+  useEffect(() => {
+    if (!loading && !perfDone.current) {
+      perfDone.current = true;
+      perf.mark("calendar-end");
+      perf.measure("calendar-load", "calendar-start", "calendar-end");
+    }
+  }, [loading]);
 
   // On mobile, default to the compact list view.
   useEffect(() => {

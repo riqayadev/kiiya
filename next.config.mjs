@@ -8,6 +8,11 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig = {
   compress: true,
   poweredByHeader: false,
+  env: {
+    // Stamped at build time and exposed to the client for the diagnostics panel.
+    NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version || "0.1.0",
+    NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
+  },
   experimental: {
     optimizePackageImports: ["lucide-react", "@supabase/ssr"],
   },
