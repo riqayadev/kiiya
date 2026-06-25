@@ -413,13 +413,29 @@ export default function Landing() {
       </section>
 
       {/* ── FOOTER ─────────────────────────────── */}
-      <footer className="bg-kiiya-dark py-12 text-white dark:bg-[#13111E]">
+      <footer className="border-t border-white/10 bg-kiiya-dark py-12 text-white dark:bg-[#13111E]">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row md:items-start">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row md:items-start">
             <div className="text-center md:text-left">
               <p className="text-xl font-bold text-kiiya-primary">✦ Kiiya</p>
               <p className="mt-2 text-sm text-white/70">{t("footer.tagline")}</p>
             </div>
+            <nav className="flex items-center gap-6 text-sm text-white/70">
+              <Link href="#" className="transition hover:text-white">
+                Privacy
+              </Link>
+              <Link href="#" className="transition hover:text-white">
+                Terms
+              </Link>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition hover:text-white"
+              >
+                GitHub
+              </a>
+            </nav>
           </div>
           <p className="mt-8 text-center text-sm text-white/50">
             {t("footer.copy")}

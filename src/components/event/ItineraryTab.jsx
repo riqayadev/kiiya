@@ -194,7 +194,7 @@ function ActivityRow({
               onUpdate({ location: e.target.value.trim() || null })
             }
             placeholder="Location"
-            className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-kiiya-primary"
+            className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-kiiya-primary dark:border-[#2D2A3E] dark:bg-[#221F32] dark:text-white dark:placeholder:text-[#6B6480]"
           />
           <textarea
             rows={2}
@@ -203,7 +203,7 @@ function ActivityRow({
               onUpdate({ description: e.target.value.trim() || null })
             }
             placeholder="Description"
-            className="w-full resize-none rounded-md border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-kiiya-primary"
+            className="w-full resize-none rounded-md border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-kiiya-primary dark:border-[#2D2A3E] dark:bg-[#221F32] dark:text-white dark:placeholder:text-[#6B6480]"
           />
         </div>
       )}
