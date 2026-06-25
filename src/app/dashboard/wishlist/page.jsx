@@ -23,7 +23,7 @@ function Thumb({ wish }) {
   if (wish.cover_image_url) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={wish.cover_image_url} alt={wish.title} className="h-full w-full object-cover" />
+      <img src={wish.cover_image_url} alt={wish.title} loading="lazy" className="h-full w-full object-cover" />
     );
   }
   return (

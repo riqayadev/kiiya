@@ -106,7 +106,15 @@ export default function MoodBoardTab({ eventId, eventType }) {
   const saveLink = () => {
     const url = linkDraft.url.trim();
     if (!url) return;
-    const href = /^https?:\/\//.test(url) ? url : `https://${url}`;
+    // Only accept http(s). Anything with a different explicit scheme
+    // (javascript:, data:, vbscript:, …) is rejected so it can never be
+    // rendered into an <a href> that executes script.
+    const scheme = url.match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase();
+    if (scheme && scheme !== "http" && scheme !== "https") {
+      toast.error("Only http(s) links are allowed.");
+      return;
+    }
+    const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
     addItem({ type: "link", content: href, label: linkDraft.label.trim() || null, source: "url" });
     setLinkDraft({ url: "", label: "" });
     setAdding(null);
@@ -269,7 +277,7 @@ export default function MoodBoardTab({ eventId, eventType }) {
               return (
                 <ItemShell key={item.id} item={item} index={index}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.content} alt={item.label || "Mood image"} className="w-full object-cover" />
+                  <img src={item.content} alt={item.label || "Mood image"} loading="lazy" className="w-full object-cover" />
                   {(item.label || item.unsplash_author) && (
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
                       {item.label && <p className="truncate text-xs font-medium text-white">{item.label}</p>}

@@ -192,20 +192,30 @@ export default function ProfilePage() {
   const selectTheme = async (key) => {
     applyThemeColor(key);
     setProfile((p) => ({ ...p, theme_color: key }));
-    await supabase
-      .from("profiles")
-      .update({ theme_color: key })
-      .eq("id", user.id);
-    toast.success("Theme updated!");
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ theme_color: key })
+        .eq("id", user.id);
+      if (error) throw error;
+      toast.success("Theme updated!");
+    } catch (err) {
+      toast.error(err.message || "Could not save theme.");
+    }
   };
 
   const selectLang = async (next) => {
     switchLang(next);
-    if (user)
-      await supabase
+    if (!user) return;
+    try {
+      const { error } = await supabase
         .from("profiles")
         .update({ preferred_lang: next })
         .eq("id", user.id);
+      if (error) throw error;
+    } catch (err) {
+      toast.error(err.message || "Could not save language preference.");
+    }
   };
 
   // ── Password ──
@@ -233,7 +243,7 @@ export default function ProfilePage() {
     }
   };
 
-  // ── PIN (existing hash logic, restyled) ──
+  // ── PIN (SHA-256 hashed before storage; see utils/theme.js) ──
   const savePin = async (e) => {
     e.preventDefault();
     setPinMsg("");
@@ -241,38 +251,54 @@ export default function ProfilePage() {
       setPinMsg("PIN must be exactly 6 digits.");
       return;
     }
-    await supabase
-      .from("profiles")
-      .update({ pin_hash: hashPin(pin) })
-      .eq("id", user.id);
-    setProfile((p) => ({ ...p, pin_hash: hashPin(pin) }));
-    setPin("");
-    setPinEditing(false);
-    setPinMsg("PIN saved.");
+    try {
+      const hash = await hashPin(pin);
+      const { error } = await supabase
+        .from("profiles")
+        .update({ pin_hash: hash })
+        .eq("id", user.id);
+      if (error) throw error;
+      setProfile((p) => ({ ...p, pin_hash: hash }));
+      setPin("");
+      setPinEditing(false);
+      setPinMsg("PIN saved.");
+    } catch (err) {
+      setPinMsg(err.message || "Could not save PIN.");
+    }
   };
 
   const removePin = async () => {
-    await supabase
-      .from("profiles")
-      .update({ pin_hash: null })
-      .eq("id", user.id);
-    setProfile((p) => ({ ...p, pin_hash: null }));
-    setPinEditing(false);
-    setPin("");
-    setPinMsg("PIN removed.");
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ pin_hash: null })
+        .eq("id", user.id);
+      if (error) throw error;
+      setProfile((p) => ({ ...p, pin_hash: null }));
+      setPinEditing(false);
+      setPin("");
+      setPinMsg("PIN removed.");
+    } catch (err) {
+      setPinMsg(err.message || "Could not remove PIN.");
+    }
   };
 
   const deleteAccount = async () => {
     if (!confirm("Delete your account? This cannot be undone.")) return;
     if (!confirm("Are you absolutely sure? All your events will be lost."))
       return;
-    await supabase
-      .from("profiles")
-      .update({ bio: "[account deletion requested]" })
-      .eq("id", user.id);
-    toast.info(
-      "Account deletion requested. (Placeholder — requires admin action.)"
-    );
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ bio: "[account deletion requested]" })
+        .eq("id", user.id);
+      if (error) throw error;
+      toast.info(
+        "Account deletion requested. (Placeholder — requires admin action.)"
+      );
+    } catch (err) {
+      toast.error(err.message || "Could not submit deletion request.");
+    }
   };
 
   if (loadingProfile) {

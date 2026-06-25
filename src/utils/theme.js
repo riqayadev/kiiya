@@ -54,12 +54,21 @@ export function applyThemeColor(key) {
   document.documentElement.style.setProperty("--color-primary", getThemeHex(key));
 }
 
-// Tiny non-cryptographic hash for a client-side PIN placeholder (djb2).
-// Not for real security — used to avoid storing the PIN in plain text.
-export function hashPin(pin) {
-  let h = 5381;
-  for (let i = 0; i < pin.length; i++) {
-    h = (h * 33) ^ pin.charCodeAt(i);
-  }
-  return (h >>> 0).toString(16);
+// Hashes a client-side PIN with SHA-256 (Web Crypto) before it is stored, so
+// the raw PIN never touches the database. A static app-level salt is mixed in
+// to defeat trivial rainbow tables.
+//
+// NOTE: a 6-digit PIN only has 1,000,000 possible values, so any hash is
+// brute-forceable offline by an attacker who can read the row. Confidentiality
+// of `profiles.pin_hash` therefore still relies on the row-level security
+// policy that restricts a profile to its owner — this hashing is defense in
+// depth, not a substitute for it.
+const PIN_SALT = "kiiya::pin::v1";
+
+export async function hashPin(pin) {
+  const data = new TextEncoder().encode(`${PIN_SALT}:${pin}`);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
