@@ -21,10 +21,14 @@ import { createClient } from "@/lib/supabase/client";
 import { t } from "@/utils/i18n";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import PinLockScreen from "@/components/ui/PinLockScreen";
 
 // Fired by the profile page after a successful save so the sidebar re-fetches
 // without a full reload (the layout persists across route changes).
 export const PROFILE_UPDATED_EVENT = "kiiya-profile-updated";
+
+// sessionStorage key remembering that the PIN was entered this tab session.
+const PIN_UNLOCKED_KEY = "kiiya_pin_unlocked";
 
 const NAV_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, key: "dashboard.nav.dashboard" },
@@ -203,6 +207,8 @@ export default function AppLayout({ children }) {
   const { user, loading, signOut } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [pinUnlocked, setPinUnlocked] = useState(false);
 
   // Auth gate: redirect to /login once we know there is no session.
   useEffect(() => {
@@ -211,7 +217,13 @@ export default function AppLayout({ children }) {
     }
   }, [loading, user, router]);
 
-  // Pull display name/avatar from the profiles table (useAuth only sees the
+  // Read the per-tab unlock flag once on mount (sessionStorage is unavailable
+  // during SSR, so this can't run in the initial state).
+  useEffect(() => {
+    setPinUnlocked(sessionStorage.getItem(PIN_UNLOCKED_KEY) === "true");
+  }, []);
+
+  // Pull display name/avatar/pin from the profiles table (useAuth only sees the
   // auth user, so profile edits wouldn't otherwise reflect in the sidebar).
   useEffect(() => {
     if (!user) return;
@@ -219,11 +231,12 @@ export default function AppLayout({ children }) {
     const load = () => {
       supabase
         .from("profiles")
-        .select("full_name, avatar_url")
+        .select("full_name, avatar_url, pin_hash")
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
           if (data) setProfile(data);
+          setProfileLoaded(true);
         });
     };
     load();
@@ -233,16 +246,37 @@ export default function AppLayout({ children }) {
   }, [user]);
 
   const handleSignOut = async () => {
+    sessionStorage.removeItem(PIN_UNLOCKED_KEY);
     await signOut();
     router.replace("/login");
   };
 
+  const handleUnlock = () => {
+    sessionStorage.setItem(PIN_UNLOCKED_KEY, "true");
+    setPinUnlocked(true);
+  };
+
   // While checking the session (or redirecting), show a lightweight loader.
-  if (loading || !user) {
+  // Also wait for the profile fetch so we never flash the dashboard before the
+  // PIN lock screen for users who have a PIN set.
+  if (loading || !user || !profileLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-kiiya-bg text-kiiya-primary dark:bg-[#0F0E17]">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
+    );
+  }
+
+  // PIN gate: a PIN is set and this tab hasn't been unlocked yet.
+  if (profile?.pin_hash && !pinUnlocked) {
+    return (
+      <PinLockScreen
+        pinHash={profile.pin_hash}
+        profile={profile}
+        user={user}
+        onUnlock={handleUnlock}
+        onSignOut={handleSignOut}
+      />
     );
   }
 
