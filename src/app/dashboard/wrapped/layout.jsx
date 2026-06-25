@@ -3,6 +3,11 @@
 // browser client is never created at build time.
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Year Wrapped",
+  description: "Your year in life events, beautifully summarized.",
+};
+
 export default function WrappedLayout({ children }) {
   return children;
 }

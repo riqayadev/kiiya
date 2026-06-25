@@ -6,15 +6,29 @@ import NavigationProgress from "@/components/ui/NavigationProgress";
 import ServiceWorkerRegister from "@/components/ui/ServiceWorkerRegister";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: true,
+});
 
 export const metadata = {
   metadataBase: new URL("https://kiiya.vercel.app"),
-  title: "Kiiya — Life Event Planner",
+  title: {
+    default: "Kiiya — Life Event Planner",
+    template: "%s | Kiiya",
+  },
   description:
-    "Plan, live, and remember every chapter of your story. From dream trips to wedding days — Kiiya helps you plan any life event.",
-  keywords:
-    "life event planner, trip planner, wedding planner, travel planning, event management",
+    "Plan and remember your most important life moments — trips, weddings, milestones, and more.",
+  keywords: [
+    "life event planner",
+    "trip planner",
+    "wedding planner",
+    "milestone tracker",
+  ],
+  authors: [{ name: "Kiiya" }],
+  creator: "Kiiya",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -26,19 +40,23 @@ export const metadata = {
     apple: "/icons/icon-192.png",
   },
   openGraph: {
-    title: "Kiiya — Life Event Planner",
-    description: "Plan, live, and remember every chapter of your story.",
+    type: "website",
+    locale: "en_US",
     url: "https://kiiya.vercel.app",
     siteName: "Kiiya",
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
-    locale: "en_US",
-    type: "website",
+    title: "Kiiya — Life Event Planner",
+    description: "Plan and remember your most important life moments.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Kiiya" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Kiiya — Life Event Planner",
-    description: "Plan, live, and remember every chapter of your story.",
+    description: "Plan and remember your most important life moments.",
     images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -56,6 +74,16 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://images.unsplash.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="dns-prefetch"
+          href="https://tikssidjxhemwavgbbya.supabase.co"
+        />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="font-sans antialiased">

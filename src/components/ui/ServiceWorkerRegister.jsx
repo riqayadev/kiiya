@@ -1,13 +1,26 @@
 "use client";
 import { useEffect } from "react";
+import { toast } from "@/components/ui/Toast";
 
-// Registers the PWA service worker once on the client (production-safe) and
-// auto-reloads when a new worker activates, so deploys are picked up without a
-// manual hard refresh.
+// Registers the PWA service worker once on the client (production-safe). When a
+// new worker is installed while one is already controlling the page, we surface
+// an "updated" toast and reload as soon as the new worker takes control, so a
+// fresh deploy is picked up without a manual hard refresh.
 export default function ServiceWorkerRegister() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
+
+    let refreshing = false;
+    const onControllerChange = () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    };
+    navigator.serviceWorker.addEventListener(
+      "controllerchange",
+      onControllerChange
+    );
 
     const onLoad = () => {
       navigator.serviceWorker
@@ -17,12 +30,13 @@ export default function ServiceWorkerRegister() {
             const newWorker = reg.installing;
             if (!newWorker) return;
             newWorker.addEventListener("statechange", () => {
-              // Only reload for an update, not the very first install.
+              // A new version is ready and we're already controlled by an old
+              // one → this is an update (not the first install).
               if (
-                newWorker.state === "activated" &&
+                newWorker.state === "installed" &&
                 navigator.serviceWorker.controller
               ) {
-                window.location.reload();
+                toast.info("✨ Kiiya was updated — refreshing for the latest…");
               }
             });
           });
@@ -33,7 +47,13 @@ export default function ServiceWorkerRegister() {
     };
 
     window.addEventListener("load", onLoad);
-    return () => window.removeEventListener("load", onLoad);
+    return () => {
+      window.removeEventListener("load", onLoad);
+      navigator.serviceWorker.removeEventListener(
+        "controllerchange",
+        onControllerChange
+      );
+    };
   }, []);
 
   return null;

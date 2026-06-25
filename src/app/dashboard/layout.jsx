@@ -3,6 +3,11 @@
 // so the Supabase browser client is never created at build time.
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Dashboard",
+  description: "Your life events command center.",
+};
+
 import AppLayout from "@/components/layout/AppLayout";
 
 // AppLayout (a client component) handles the auth gate + sidebar/topbar shell.

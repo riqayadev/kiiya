@@ -3,6 +3,11 @@
 // browser client is never created at build time.
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Wish List",
+  description: "Your bucket list of experiences to make happen.",
+};
+
 export default function WishlistLayout({ children }) {
   return children;
 }

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /planning/
+Disallow: /calendar/
+Disallow: /profile/
+Sitemap: https://kiiya.vercel.app/sitemap.xml
