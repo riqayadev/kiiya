@@ -27,6 +27,7 @@ export default function InlineEdit({
   placeholder = "Empty",
   display,
   className = "",
+  maxLength,
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value ?? "");
@@ -129,19 +130,27 @@ export default function InlineEdit({
 
     if (type === "textarea") {
       return (
-        <textarea
-          ref={inputRef}
-          rows={1}
-          value={draft}
-          onChange={(e) => {
-            setDraft(e.target.value);
-            autoResize(e.target);
-          }}
-          onBlur={() => commit(draft)}
-          onKeyDown={(e) => e.key === "Escape" && cancel()}
-          placeholder={placeholder}
-          className={`${editCls} resize-none`}
-        />
+        <div>
+          <textarea
+            ref={inputRef}
+            rows={1}
+            maxLength={maxLength}
+            value={draft}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              autoResize(e.target);
+            }}
+            onBlur={() => commit(draft)}
+            onKeyDown={(e) => e.key === "Escape" && cancel()}
+            placeholder={placeholder}
+            className={`${editCls} resize-none`}
+          />
+          {maxLength && (
+            <p className="mt-1 text-right text-[11px] text-gray-400">
+              {draft.length}/{maxLength}
+            </p>
+          )}
+        </div>
       );
     }
 
@@ -154,6 +163,7 @@ export default function InlineEdit({
           ref={inputRef}
           type={type === "currency" ? "number" : type === "date" ? "date" : "text"}
           min={type === "currency" ? "0" : undefined}
+          maxLength={type === "currency" || type === "date" ? undefined : maxLength}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={() => commit(draft)}
