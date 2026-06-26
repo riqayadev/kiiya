@@ -24,7 +24,7 @@ import { useLang } from "@/hooks/useLang";
 import { useEvents } from "@/hooks/useEvents";
 import { t } from "@/utils/i18n";
 import { getEventColor, statusColors } from "@/utils/eventColors";
-import { formatRupiah, formatDateRange } from "@/utils/format";
+import { formatDateRange } from "@/utils/format";
 import NewEventModal from "@/components/ui/NewEventModal";
 import EditEventModal from "@/components/ui/EditEventModal";
 import OnboardingModal from "@/components/ui/OnboardingModal";
@@ -63,11 +63,11 @@ function formatBudgetShort(amount) {
 function EmptyState({ emoji, title, subtitle, action }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="mb-4 text-5xl">{emoji}</div>
-      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+      <div className="mb-4 text-7xl">{emoji}</div>
+      <h3 className="font-jakarta text-xl font-bold text-gray-700 dark:text-gray-200">
         {title}
       </h3>
-      <p className="mx-auto mt-1 max-w-xs text-sm text-gray-400 dark:text-gray-500">
+      <p className="mx-auto mt-2 max-w-xs text-sm text-gray-400 dark:text-gray-500">
         {subtitle}
       </p>
       {action && <div className="mt-6">{action}</div>}
@@ -78,9 +78,9 @@ function EmptyState({ emoji, title, subtitle, action }) {
 function EventsSkeleton({ view }) {
   if (view === "grid") {
     return (
-      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-52 rounded-2xl" />
+          <Skeleton key={i} className="h-64 rounded-3xl" />
         ))}
       </div>
     );
@@ -88,7 +88,7 @@ function EventsSkeleton({ view }) {
   return (
     <div className="mt-6 space-y-2">
       {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} className="h-16 rounded-xl" />
+        <Skeleton key={i} className="h-20 rounded-2xl" />
       ))}
     </div>
   );
@@ -127,10 +127,10 @@ function EventMenu({ event, onEdit, onStatus, onDelete, dark }) {
           setOpen((o) => !o);
         }}
         aria-label="Event menu"
-        className={`flex h-8 w-8 items-center justify-center rounded-full text-kiiya-dark transition dark:text-[#A89EC9] ${
+        className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
           dark
-            ? "bg-white/80 opacity-0 shadow-sm backdrop-blur hover:bg-white group-hover:opacity-100"
-            : "hover:bg-purple-50 dark:hover:bg-[#221F32]"
+            ? "border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30"
+            : "text-kiiya-dark hover:bg-purple-50 dark:text-[#A89EC9] dark:hover:bg-[#221F32]"
         }`}
       >
         <MoreVertical className="h-4 w-4" />
@@ -251,10 +251,10 @@ function EventRow({ event, onOpen, onEdit, onStatus, onDelete }) {
   return (
     <div
       onClick={onOpen}
-      className="group flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-white/5"
+      className="group flex cursor-pointer items-center gap-3 border-l-2 border-transparent px-4 py-3 transition-colors hover:border-kiiya-primary hover:bg-[#7C6EF5]/[0.03] dark:hover:bg-white/5"
     >
       {/* Thumbnail */}
-      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl">
+      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl">
         {event.cover_image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -266,7 +266,7 @@ function EventRow({ event, onOpen, onEdit, onStatus, onDelete }) {
           />
         ) : (
           <div
-            className={`flex h-full w-full items-center justify-center bg-gradient-to-br text-xl ${colors.gradient}`}
+            className={`flex h-full w-full items-center justify-center bg-gradient-to-br text-2xl ${colors.gradient}`}
           >
             {event.cover_emoji || colors.icon}
           </div>
@@ -275,7 +275,7 @@ function EventRow({ event, onOpen, onEdit, onStatus, onDelete }) {
 
       {/* Title + type */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+        <p className="truncate font-jakarta text-sm font-semibold text-gray-900 dark:text-gray-100">
           {event.title}
         </p>
         <p className="truncate text-xs text-gray-400 dark:text-gray-500">
@@ -317,9 +317,38 @@ function EventRow({ event, onOpen, onEdit, onStatus, onDelete }) {
 
 function EventCard({ event, onEdit, onStatus, onDelete }) {
   const colors = getEventColor(event.type);
+  const budgetText = formatBudgetShort(event.budget);
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-purple-100 bg-white transition hover:shadow-card-hover dark:border-[#2D2A3E] dark:bg-[#1A1825] dark:hover:shadow-black/40">
-      <div className="absolute right-2 top-2 z-10">
+    <div className="card-hover group relative overflow-hidden rounded-3xl bg-white shadow-[0_2px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgba(124,110,245,0.15)] dark:bg-[#1A1725]">
+      {/* Cover (≈65% of card) with status badge + menu overlaid */}
+      <Link
+        href={`/dashboard/events/${event.id}`}
+        className="relative block h-44 cursor-pointer"
+      >
+        {event.cover_image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={event.cover_image_url}
+            alt={event.title}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div
+            className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br text-6xl ${colors.gradient}`}
+          >
+            {event.cover_emoji || colors.icon}
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+        <span className="absolute left-3 top-3 rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+          {t(`dashboard.status.${event.status}`)}
+        </span>
+      </Link>
+
+      {/* Menu (sits above the cover link) */}
+      <div className="absolute right-3 top-3 z-10">
         <EventMenu
           event={event}
           onEdit={onEdit}
@@ -328,47 +357,25 @@ function EventCard({ event, onEdit, onStatus, onDelete }) {
           dark
         />
       </div>
-      <Link href={`/dashboard/events/${event.id}`} className="block cursor-pointer">
-        {event.cover_image_url ? (
-          <div className="relative h-28">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={event.cover_image_url}
-              alt={event.title}
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-cover"
-            />
-          </div>
-        ) : (
-          <div
-            className={`flex h-28 items-center justify-center bg-gradient-to-br text-5xl ${colors.gradient}`}
-          >
-            {event.cover_emoji || colors.icon}
-          </div>
-        )}
-        <div className="p-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${statusColors[event.status]}`}
-            >
-              {t(`dashboard.status.${event.status}`)}
-            </span>
-            <span
-              className={`rounded-full border border-transparent px-3 py-1 text-xs font-semibold ${colors.badge}`}
-            >
-              {colors.icon} {t(`dashboard.eventTypes.${event.type}`)}
-            </span>
-          </div>
-          <h3 className="mt-3 text-lg font-semibold text-kiiya-dark dark:text-white">
-            {event.title}
-          </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-[#6B6480]">
-            {formatDateRange(event.start_date, event.end_date)}
-          </p>
-          <p className="mt-3 text-sm font-semibold text-kiiya-dark dark:text-[#A89EC9]">
-            {formatRupiah(event.budget)}
-          </p>
+
+      {/* Bottom info */}
+      <Link
+        href={`/dashboard/events/${event.id}`}
+        className="block cursor-pointer p-4"
+      >
+        <h3 className="truncate font-jakarta text-base font-semibold text-kiiya-dark dark:text-white">
+          {event.title}
+        </h3>
+        <p className="mt-1 inline-flex items-center gap-1 text-xs text-gray-500 dark:text-[#6B6480]">
+          📅 {formatDateRange(event.start_date, event.end_date) || "No date"}
+        </p>
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-sm font-semibold text-kiiya-dark dark:text-[#A89EC9]">
+            {budgetText ? `💰 ${budgetText}` : "—"}
+          </span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#7C6EF5]/10 text-kiiya-primary transition group-hover:bg-kiiya-primary group-hover:text-white">
+            <ChevronRight className="h-4 w-4" />
+          </span>
         </div>
       </Link>
     </div>
@@ -382,7 +389,7 @@ export default function Planning() {
     useEvents();
   const [filter, setFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [view, setView] = useState("list");
+  const [view, setView] = useState("grid");
   const [sort, setSort] = useState("newest");
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef(null);
@@ -462,10 +469,10 @@ export default function Planning() {
   }, [events, filter, sort, searchQuery]);
 
   const statCards = [
-    { icon: Calendar, value: stats.total, label: t("dashboard.stats.totalEvents") },
-    { icon: Clock, value: stats.upcoming, label: t("dashboard.stats.upcoming") },
-    { icon: Zap, value: stats.ongoing, label: t("dashboard.ongoing") },
-    { icon: CheckCircle, value: stats.completed, label: t("dashboard.stats.completed") },
+    { icon: Calendar, value: stats.total, label: t("dashboard.stats.totalEvents"), accent: "#7C6EF5" },
+    { icon: Clock, value: stats.upcoming, label: t("dashboard.stats.upcoming"), accent: "#F0956A" },
+    { icon: Zap, value: stats.ongoing, label: t("dashboard.ongoing"), accent: "#E8A0BF" },
+    { icon: CheckCircle, value: stats.completed, label: t("dashboard.stats.completed"), accent: "#2DD4BF" },
   ];
 
   // Confirmation now happens inline inside the event menu; here we just run the
@@ -487,16 +494,16 @@ export default function Planning() {
       {/* A) HEADER */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-kiiya-dark dark:text-white">
+          <h1 className="font-jakarta text-3xl font-bold text-kiiya-dark dark:text-white">
             {t("dashboard.nav.planning")}
           </h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-[#A89EC9]">
+          <p className="mt-1 text-sm font-medium text-gray-500 dark:text-[#A89EC9]">
             {t("planning.subtitle")}
           </p>
         </div>
         <button
           onClick={() => setShowNewEventModal(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white shadow-primary transition hover:bg-[#6B5EE4]"
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-kiiya-primary px-5 py-3 font-semibold text-white shadow-primary transition hover:bg-[#6B5EE4]"
         >
           <Plus className="h-5 w-5" />
           {t("dashboard.newEvent")}
@@ -504,19 +511,26 @@ export default function Planning() {
       </div>
 
       {/* B) QUICK STATS */}
-      <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-        {statCards.map(({ icon: Icon, value, label }) => (
+      <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+        {statCards.map(({ icon: Icon, value, label, accent }) => (
           <div
             key={label}
-            className="rounded-2xl border border-purple-100 bg-white p-4 dark:border-[#2D2A3E] dark:bg-[#1A1825]"
+            className="rounded-3xl border-l-4 bg-white p-5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:bg-[#1A1725]"
+            style={{ borderLeftColor: accent }}
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-kiiya-primary dark:bg-[#221F32] dark:text-[#A594F9]">
-              <Icon className="h-4 w-4" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-2xl"
+              style={{ backgroundColor: `${accent}1A`, color: accent }}
+            >
+              <Icon className="h-5 w-5" strokeWidth={1.9} />
             </div>
-            <p className="mt-3 text-2xl font-bold text-kiiya-dark dark:text-white">
+            <p
+              className="mt-4 font-jakarta text-3xl font-extrabold"
+              style={{ color: accent }}
+            >
               {value}
             </p>
-            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-[#6B6480]">
+            <p className="text-xs font-medium text-gray-400 dark:text-[#6B6480]">
               {label}
             </p>
           </div>
@@ -560,25 +574,25 @@ export default function Planning() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           {/* Search */}
           <div className="relative w-full sm:w-80">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t("planning.search_placeholder")}
-              className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-9 text-sm text-kiiya-dark outline-none transition focus:border-kiiya-primary dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-gray-500"
+              className="w-full rounded-2xl bg-white py-3 pl-11 pr-10 text-sm text-kiiya-dark shadow-[0_2px_12px_rgba(0,0,0,0.06)] outline-none ring-kiiya-primary/40 transition focus:ring-2 dark:bg-[#1A1725] dark:text-white dark:placeholder:text-gray-500"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
                 aria-label={t("planning.clear_search")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200"
               >
                 <X className="h-4 w-4" />
               </button>
             )}
           </div>
 
-          {/* Filter tabs */}
+          {/* Filter pills */}
           <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => {
             const label =
@@ -588,10 +602,10 @@ export default function Planning() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                   active
-                    ? "bg-kiiya-primary text-white"
-                    : "border border-purple-100 bg-white text-kiiya-dark/70 hover:border-kiiya-primary/40 dark:border-[#2D2A3E] dark:bg-[#1A1825] dark:text-[#A89EC9]"
+                    ? "bg-kiiya-primary text-white shadow-sm"
+                    : "border border-gray-100 bg-white text-gray-500 hover:text-kiiya-primary dark:border-white/10 dark:bg-[#1A1725] dark:text-[#A89EC9]"
                 }`}
               >
                 {label}
@@ -606,13 +620,13 @@ export default function Planning() {
           <div className="relative" ref={sortRef}>
             <button
               onClick={() => setSortOpen((o) => !o)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-purple-100 bg-white px-3 py-1.5 text-sm font-medium text-kiiya-dark/70 transition hover:border-kiiya-primary/40 dark:border-[#2D2A3E] dark:bg-[#1A1825] dark:text-[#A89EC9]"
+              className="inline-flex items-center gap-1.5 rounded-2xl bg-white px-4 py-2.5 text-sm font-medium text-gray-500 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition hover:text-kiiya-primary dark:bg-[#1A1725] dark:text-[#A89EC9]"
             >
               <ArrowUpDown className="h-4 w-4" />
               {t(`dashboard.sort.${sort}`)}
             </button>
             {sortOpen && (
-              <div className="absolute right-0 top-10 z-20 w-40 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg dark:border-[#2D2A3E] dark:bg-[#1A1825]">
+              <div className="absolute right-0 top-12 z-20 w-40 overflow-hidden rounded-2xl border border-gray-100 bg-white py-1 shadow-lg dark:border-[#2D2A3E] dark:bg-[#1A1825]">
                 {SORTS.map((s) => (
                   <button
                     key={s}
@@ -634,28 +648,28 @@ export default function Planning() {
           </div>
 
           {/* View toggle */}
-          <div className="flex gap-1 rounded-lg border border-purple-100 bg-white p-1 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
-            <button
-              onClick={() => setView("list")}
-              aria-label="List view"
-              className={`rounded-md p-1.5 transition ${
-                view === "list"
-                  ? "bg-purple-100 text-kiiya-primary dark:bg-[#221F32] dark:text-[#A594F9]"
-                  : "text-gray-400 dark:text-[#6B6480]"
-              }`}
-            >
-              <ListIcon className="h-4 w-4" />
-            </button>
+          <div className="flex gap-1 rounded-2xl bg-white p-1 shadow-[0_2px_12px_rgba(0,0,0,0.06)] dark:bg-[#1A1725]">
             <button
               onClick={() => setView("grid")}
               aria-label="Grid view"
-              className={`rounded-md p-1.5 transition ${
+              className={`rounded-xl p-2 transition ${
                 view === "grid"
-                  ? "bg-purple-100 text-kiiya-primary dark:bg-[#221F32] dark:text-[#A594F9]"
+                  ? "bg-[#7C6EF5]/15 text-kiiya-primary dark:text-[#A594F9]"
                   : "text-gray-400 dark:text-[#6B6480]"
               }`}
             >
               <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setView("list")}
+              aria-label="List view"
+              className={`rounded-xl p-2 transition ${
+                view === "list"
+                  ? "bg-[#7C6EF5]/15 text-kiiya-primary dark:text-[#A594F9]"
+                  : "text-gray-400 dark:text-[#6B6480]"
+              }`}
+            >
+              <ListIcon className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -700,21 +714,27 @@ export default function Planning() {
             }
           />
         ) : events.length === 0 ? (
-          // A — no events at all (first-time user)
-          <EmptyState
-            emoji="🗺️"
-            title={t("planning.empty_title")}
-            subtitle={t("planning.empty_subtitle")}
-            action={
+          // A — no events at all (first-time user): premium welcome hero
+          <div className="relative mt-6 overflow-hidden rounded-3xl bg-gradient-to-br from-[#7C6EF5] to-[#9B8FF7] p-10 text-center text-white shadow-[0_12px_40px_rgba(124,110,245,0.3)] sm:p-16">
+            <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-white/10" />
+            <div className="pointer-events-none absolute -bottom-16 -left-10 h-44 w-44 rounded-full bg-white/10" />
+            <div className="relative mx-auto max-w-md">
+              <div className="mb-5 text-7xl">🗺️</div>
+              <h3 className="font-jakarta text-3xl font-extrabold">
+                {t("planning.empty_title")}
+              </h3>
+              <p className="mx-auto mt-3 max-w-sm text-sm text-white/85">
+                {t("planning.empty_subtitle")}
+              </p>
               <button
                 onClick={() => setShowNewEventModal(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white transition hover:opacity-90"
+                className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 font-jakarta font-bold text-kiiya-primary shadow-lg transition hover:scale-[1.03]"
               >
                 <Plus className="h-5 w-5" />
                 {t("dashboard.newEvent")}
               </button>
-            }
-          />
+            </div>
+          </div>
         ) : (
           // B — active tab filter has no matches
           <EmptyState
@@ -736,7 +756,7 @@ export default function Planning() {
           />
         )
       ) : view === "list" ? (
-        <div className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white dark:divide-white/5 dark:border-white/10 dark:bg-[#1A1825]">
+        <div className="divide-y divide-gray-50 overflow-hidden rounded-3xl bg-white shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:divide-white/5 dark:bg-[#1A1725]">
           {filtered.map((event) => (
             <EventRow
               key={event.id}
@@ -749,7 +769,7 @@ export default function Planning() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((event) => (
             <EventCard
               key={event.id}

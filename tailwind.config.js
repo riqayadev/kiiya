@@ -22,6 +22,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "Inter", "sans-serif"],
+        jakarta: ["var(--font-jakarta)", "var(--font-inter)", "sans-serif"],
       },
       fontSize: {
         display: ["3.5rem", { lineHeight: "1.1", fontWeight: "800" }],

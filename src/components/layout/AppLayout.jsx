@@ -82,21 +82,21 @@ function SidebarContent({ user, profile, signOut, pathname, onNavigate }) {
   return (
     <div className="flex h-full flex-col">
       {/* Top — brand */}
-      <div className="p-5">
+      <div className="px-5 pb-2 pt-6">
         <Link
           href="/dashboard"
           onClick={onNavigate}
-          className="block text-lg font-semibold text-kiiya-primary"
+          className="flex items-center gap-1.5 font-jakarta text-xl font-extrabold text-[#7C6EF5]"
         >
-          ✦ Kiiya
+          Kiiya <span className="text-base">✨</span>
         </Link>
-        <p className="mt-0.5 text-xs text-gray-400 dark:text-[#6B6480]">
+        <p className="mt-1 text-xs font-medium text-gray-400 dark:text-[#6B6480]">
           Life Event Planner
         </p>
       </div>
 
       {/* Nav */}
-      <nav className="mt-1 flex-1 space-y-1 px-3">
+      <nav className="mt-4 flex-1 space-y-1 px-2">
         {NAV_ITEMS.map(({ to, icon: Icon, key }) => {
           const isActive = pathname === to;
           return (
@@ -104,99 +104,101 @@ function SidebarContent({ user, profile, signOut, pathname, onNavigate }) {
               key={to}
               href={to}
               onClick={onNavigate}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all ${
+              aria-current={isActive ? "page" : undefined}
+              className={`mx-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all ${
                 isActive
-                  ? "bg-purple-50 font-medium text-kiiya-primary dark:bg-[#221F32] dark:text-[#A594F9]"
-                  : "text-gray-600 hover:bg-purple-50 dark:text-[#A89EC9] dark:hover:bg-[#221F32]"
+                  ? "bg-[#7C6EF5]/15 font-semibold text-[#7C6EF5] dark:bg-[#7C6EF5]/20"
+                  : "text-gray-500 hover:bg-[#7C6EF5]/8 hover:text-[#7C6EF5] dark:text-[#A89EC9] dark:hover:bg-white/5"
               }`}
             >
-              <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} />
+              <Icon
+                className={`h-5 w-5 transition-colors ${
+                  isActive ? "text-[#7C6EF5]" : "text-gray-400"
+                }`}
+                strokeWidth={1.9}
+              />
               {t(key)}
             </Link>
           );
         })}
       </nav>
 
-      {/* Bottom */}
-      <div className="relative border-t border-purple-100 p-4 dark:border-[#2D2A3E]">
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <LanguageToggle className="dark:border-[#2D2A3E] dark:bg-[#221F32]" />
-        </div>
-
-        <div className="my-3 border-t border-purple-100 dark:border-[#2D2A3E]" />
-
-        {/* Avatar — opens the dropdown menu upward */}
-        <div ref={menuRef}>
-          <button
-            onClick={() => setMenuOpen((o) => !o)}
-            className="flex w-full items-center gap-3 rounded-xl p-1 text-left transition hover:bg-purple-50 dark:hover:bg-[#221F32]"
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-          >
-            {profile?.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={profile.avatar_url}
-                alt={name}
-                loading="lazy"
-                decoding="async"
-                className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-kiiya-primary text-xs font-semibold text-white">
-                {getInitials(name)}
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-kiiya-dark dark:text-[#F0EEFF]">
-                {name}
-              </p>
-              <p className="truncate text-xs text-gray-400 dark:text-[#6B6480]">
-                {user?.email}
-              </p>
-            </div>
-            <ChevronUp
-              className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform dark:text-[#6B6480] ${
-                menuOpen ? "" : "rotate-180"
-              }`}
+      {/* Bottom — user card with dropdown (profile / theme / language / sign out) */}
+      <div className="relative p-3" ref={menuRef}>
+        <button
+          onClick={() => setMenuOpen((o) => !o)}
+          className="flex w-full items-center gap-3 rounded-2xl bg-[#7C6EF5]/8 p-3 text-left transition hover:bg-[#7C6EF5]/15 dark:bg-white/5 dark:hover:bg-white/10"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+        >
+          {profile?.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile.avatar_url}
+              alt={name}
+              loading="lazy"
+              decoding="async"
+              className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
             />
-          </button>
-
-          {menuOpen && (
-            <div
-              role="menu"
-              className="absolute bottom-16 left-4 z-20 min-w-[180px] rounded-xl border border-purple-100 bg-white p-1 shadow-xl dark:border-[#2D2A3E] dark:bg-[#1A1825]"
-            >
-              <Link
-                href="/profile"
-                role="menuitem"
-                onClick={() => {
-                  setMenuOpen(false);
-                  onNavigate?.();
-                }}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50 dark:text-[#F0EEFF] dark:hover:bg-[#221F32]"
-              >
-                <UserCircle className="h-4 w-4" strokeWidth={1.8} />
-                {t("dashboard.nav.profile")}
-              </Link>
-
-              <div className="my-1 border-t border-purple-100 dark:border-[#2D2A3E]" />
-
-              <button
-                role="menuitem"
-                onClick={() => {
-                  setMenuOpen(false);
-                  signOut();
-                }}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
-              >
-                <LogOut className="h-4 w-4" strokeWidth={1.8} />
-                {t("dashboard.nav.signOut")}
-              </button>
+          ) : (
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-kiiya-primary text-xs font-semibold text-white">
+              {getInitials(name)}
             </div>
           )}
-        </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-jakarta text-sm font-semibold text-kiiya-dark dark:text-[#F0EEFF]">
+              {name}
+            </p>
+            <p className="truncate text-xs text-gray-400 dark:text-[#6B6480]">
+              {user?.email}
+            </p>
+          </div>
+          <ChevronUp
+            className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform dark:text-[#6B6480] ${
+              menuOpen ? "" : "rotate-180"
+            }`}
+          />
+        </button>
+
+        {menuOpen && (
+          <div
+            role="menu"
+            className="absolute bottom-[88px] left-3 right-3 z-20 rounded-2xl border border-purple-100 bg-white p-2 shadow-xl dark:border-[#2D2A3E] dark:bg-[#1A1825]"
+          >
+            <Link
+              href="/profile"
+              role="menuitem"
+              onClick={() => {
+                setMenuOpen(false);
+                onNavigate?.();
+              }}
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-kiiya-dark transition hover:bg-purple-50 dark:text-[#F0EEFF] dark:hover:bg-[#221F32]"
+            >
+              <UserCircle className="h-4 w-4" strokeWidth={1.8} />
+              {t("dashboard.nav.profile")}
+            </Link>
+
+            {/* Theme + language controls */}
+            <div className="mt-1 flex items-center justify-between gap-2 rounded-xl px-3 py-2">
+              <ThemeToggle />
+              <LanguageToggle className="dark:border-[#2D2A3E] dark:bg-[#221F32]" />
+            </div>
+
+            <div className="my-1 border-t border-purple-100 dark:border-[#2D2A3E]" />
+
+            <button
+              role="menuitem"
+              onClick={() => {
+                setMenuOpen(false);
+                signOut();
+              }}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+            >
+              <LogOut className="h-4 w-4" strokeWidth={1.8} />
+              {t("dashboard.nav.signOut")}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -290,9 +292,9 @@ export default function AppLayout({ children }) {
   const name = getDisplayName(user, profile);
 
   return (
-    <div className="min-h-screen bg-kiiya-bg dark:bg-[#0F0E17]">
+    <div className="min-h-screen bg-[#FAFAF8] dark:bg-[#0F0D1A]">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 hidden w-60 border-r border-purple-100 bg-white dark:border-[#2D2A3E] dark:bg-[#13111E] md:block">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-[#E8E4FF] bg-[#F4F2FF] dark:border-white/8 dark:bg-[#0F0D1A] md:block">
         <SidebarContent
           user={user}
           profile={profile}
@@ -302,9 +304,12 @@ export default function AppLayout({ children }) {
       </aside>
 
       {/* Mobile topbar */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-purple-100 bg-white px-4 dark:border-[#2D2A3E] dark:bg-[#13111E] md:hidden">
-        <Link href="/dashboard" className="text-lg font-semibold text-kiiya-primary">
-          ✦ Kiiya
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-[#E8E4FF] bg-[#F4F2FF] px-4 dark:border-white/8 dark:bg-[#0F0D1A] md:hidden">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-1.5 font-jakarta text-lg font-extrabold text-[#7C6EF5]"
+        >
+          Kiiya <span className="text-sm">✨</span>
         </Link>
         <div className="flex items-center gap-3">
           {profile?.avatar_url ? (
@@ -338,7 +343,7 @@ export default function AppLayout({ children }) {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setDrawerOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 w-60 bg-white shadow-xl dark:bg-[#13111E]">
+          <div className="absolute inset-y-0 left-0 w-64 bg-[#F4F2FF] shadow-xl dark:bg-[#0F0D1A]">
             <button
               onClick={() => setDrawerOpen(false)}
               aria-label="Close menu"
@@ -360,7 +365,7 @@ export default function AppLayout({ children }) {
       {/* Main content (re-fades on each route change) */}
       <main
         key={pathname}
-        className="min-h-screen animate-fade-in p-6 md:ml-60 md:p-8"
+        className="page-enter min-h-screen p-6 md:ml-64 md:p-8"
       >
         {children}
       </main>
