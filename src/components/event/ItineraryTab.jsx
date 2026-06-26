@@ -98,8 +98,8 @@ function ActivityRow({
   };
 
   return (
-    <div className="group rounded-lg transition hover:bg-purple-50/40 dark:hover:bg-[#221F32]/60">
-      <div className="flex items-center gap-2 px-1 py-1.5">
+    <div className="group rounded-2xl border-l-2 border-transparent bg-[#FAFAF8] transition hover:border-[#7C6EF5] dark:bg-[#252235]">
+      <div className="flex items-center gap-2 px-3 py-2">
         {/* Drag handle (visual affordance) */}
         <span className="cursor-grab text-gray-300 opacity-0 transition group-hover:opacity-100">
           <GripVertical className="h-4 w-4" />
@@ -187,7 +187,7 @@ function ActivityRow({
 
       {/* Expanded detail editor */}
       {expanded && (
-        <div className="space-y-2 px-9 pb-2">
+        <div className="space-y-2 px-3 pb-3">
           <input
             defaultValue={activity.location || ""}
             onBlur={(e) =>
@@ -240,17 +240,22 @@ function DayCard({
   };
 
   return (
-    <div className="group/day rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
+    <div className="group/day rounded-3xl bg-white p-5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:bg-[#1A1725]">
       {/* Day header */}
-      <div className="flex items-center gap-2">
-        <h3 className="flex-shrink-0 text-lg font-bold text-kiiya-dark dark:text-white">
-          Day {day.day_number}
-        </h3>
-        {day.date && (
-          <span className="flex-shrink-0 text-sm font-medium text-gray-400">
-            {formatDateShort(day.date)}
-          </span>
-        )}
+      <div className="flex items-center gap-3">
+        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-kiiya-primary text-sm font-bold text-white">
+          {day.day_number}
+        </span>
+        <div className="flex-shrink-0">
+          <h3 className="font-jakarta text-lg font-bold leading-tight text-kiiya-dark dark:text-white">
+            Day {day.day_number}
+          </h3>
+          {day.date && (
+            <span className="text-xs font-medium text-gray-400">
+              {formatDateShort(day.date)}
+            </span>
+          )}
+        </div>
         <input
           value={dayTitle}
           onChange={(e) => setDayTitle(e.target.value)}
@@ -273,8 +278,8 @@ function DayCard({
         </button>
       </div>
 
-      {/* Activities */}
-      <div className="mt-3 space-y-0.5">
+      {/* Activities — vertical timeline */}
+      <div className="ml-4 mt-4 space-y-3 border-l-2 border-[#7C6EF5]/20 pl-6">
         {day.activities.map((activity) => (
           <ActivityRow
             key={activity.id}
@@ -295,10 +300,9 @@ function DayCard({
           />
         ))}
 
-        {/* Add activity row */}
-        <div className="flex items-center gap-2 px-1 py-1.5">
-          <span className="w-4 flex-shrink-0" />
-          <Plus className="h-4 w-4 flex-shrink-0 text-gray-300" />
+        {/* Add activity row — dashed */}
+        <div className="flex items-center gap-2 rounded-2xl border-2 border-dashed border-[#7C6EF5]/30 px-3 py-2.5 transition focus-within:border-[#7C6EF5]/60 hover:border-[#7C6EF5]/60 hover:bg-[#7C6EF5]/5">
+          <Plus className="h-4 w-4 flex-shrink-0 text-kiiya-primary" />
           <input
             ref={newInputRef}
             value={newTitle}
@@ -311,7 +315,7 @@ function DayCard({
             }}
             onBlur={commitNew}
             placeholder="Add activity…"
-            className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm text-gray-500 outline-none transition hover:border-gray-200 focus:border-kiiya-primary"
+            className="min-w-0 flex-1 bg-transparent text-sm font-medium text-kiiya-primary outline-none placeholder:text-kiiya-primary/60"
           />
         </div>
       </div>
@@ -345,9 +349,9 @@ export default function ItineraryTab({
   return (
     <div className="space-y-4">
       {itineraryDays.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-purple-200 bg-white py-12 text-center dark:border-[#2D2A3E] dark:bg-[#1A1825]">
-          <span className="text-4xl">🗓️</span>
-          <p className="mt-3 font-semibold text-kiiya-dark dark:text-white">
+        <div className="rounded-3xl border-2 border-dashed border-[#7C6EF5]/30 bg-white py-12 text-center shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:bg-[#1A1725]">
+          <span className="text-5xl">🗓️</span>
+          <p className="mt-3 font-jakarta font-bold text-kiiya-dark dark:text-white">
             No days planned yet
           </p>
           <p className="mt-1 text-sm text-gray-500">
@@ -374,7 +378,7 @@ export default function ItineraryTab({
       <button
         onClick={handleAddDay}
         disabled={addingDay}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-purple-200 bg-white py-4 dark:border-[#2D2A3E] dark:bg-[#1A1825] font-semibold text-kiiya-primary transition hover:border-kiiya-primary/50 hover:bg-purple-50/40 dark:hover:bg-[#221F32]/60 disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-[#7C6EF5]/30 py-4 font-jakarta font-semibold text-kiiya-primary transition hover:border-[#7C6EF5]/60 hover:bg-[#7C6EF5]/5 disabled:opacity-60"
       >
         {addingDay ? (
           <Loader2 className="h-5 w-5 animate-spin" />

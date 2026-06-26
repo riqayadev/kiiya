@@ -7,6 +7,17 @@ import { toast } from "@/components/ui/Toast";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+// Compact IDR for the donut center (full amounts shown in the pills below).
+function compactIdr(n) {
+  if (!n) return "Rp 0";
+  if (n >= 1_000_000_000)
+    return `Rp ${(n / 1_000_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (n >= 1_000_000)
+    return `Rp ${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}jt`;
+  if (n >= 1_000) return `Rp ${Math.round(n / 1_000)}rb`;
+  return `Rp ${n}`;
+}
+
 function CategoryPicker({ value, onChange }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -83,7 +94,7 @@ function ExpenseRow({ expense, onUpdate, onDelete }) {
   };
 
   return (
-    <div className="group flex items-center gap-2 rounded-lg px-1 py-1.5 transition hover:bg-purple-50/40 dark:hover:bg-[#221F32]/60">
+    <div className="group flex items-center gap-2 rounded-2xl bg-[#FAFAF8] px-3 py-2.5 transition hover:ring-1 hover:ring-[#7C6EF5]/30 dark:bg-[#252235]">
       <CategoryPicker
         value={expense.category}
         onChange={(c) => onUpdate({ category: c })}
@@ -190,8 +201,12 @@ export default function BudgetTab({
   );
   const remaining = budget - spent;
   const pct = budget > 0 ? Math.round((spent / budget) * 100) : 0;
-  const barColor =
-    pct < 70 ? "bg-green-500" : pct < 90 ? "bg-yellow-500" : "bg-red-500";
+  const ringColor = remaining < 0 ? "#EF4444" : pct >= 90 ? "#F0956A" : "#7C6EF5";
+
+  // Donut geometry.
+  const R = 54;
+  const CIRC = 2 * Math.PI * R;
+  const dash = (Math.min(pct, 100) / 100) * CIRC;
 
   const groups = useMemo(() => {
     if (!grouped) return null;
@@ -206,44 +221,72 @@ export default function BudgetTab({
 
   return (
     <div className="space-y-6">
-      {/* Summary */}
-      <div className="rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
-        <div className="grid grid-cols-3 gap-3 text-center">
-          <div>
-            <p className="text-xs text-gray-500">Budget</p>
-            <p className="mt-1 text-lg font-bold text-kiiya-dark dark:text-white">
-              {formatRupiah(budget)}
-            </p>
+      {/* Summary — donut ring */}
+      <div className="rounded-3xl bg-white p-6 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:bg-[#1A1725]">
+        <div className="flex flex-col items-center">
+          {/* Donut */}
+          <div className="relative h-40 w-40">
+            <svg viewBox="0 0 140 140" className="h-full w-full -rotate-90">
+              <circle
+                cx="70"
+                cy="70"
+                r={R}
+                fill="none"
+                strokeWidth="14"
+                className="stroke-gray-100 dark:stroke-[#252235]"
+              />
+              <circle
+                cx="70"
+                cy="70"
+                r={R}
+                fill="none"
+                strokeWidth="14"
+                strokeLinecap="round"
+                stroke={ringColor}
+                strokeDasharray={`${dash} ${CIRC}`}
+                style={{ transition: "stroke-dasharray 0.5s ease" }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="font-jakarta text-2xl font-extrabold text-kiiya-dark dark:text-white">
+                {compactIdr(spent)}
+              </span>
+              <span className="text-xs font-medium text-gray-400">
+                spent · {pct}%
+              </span>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-gray-500">Spent</p>
-            <p className="mt-1 text-lg font-bold text-kiiya-warm">
-              {formatRupiah(spent)}
-            </p>
+
+          {/* Total + remaining pills */}
+          <div className="mt-6 grid w-full grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-[#FAFAF8] p-3 text-center dark:bg-[#252235]">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                Budget
+              </p>
+              <p className="mt-1 font-jakarta text-sm font-bold text-kiiya-dark dark:text-white">
+                {formatRupiah(budget)}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-[#FAFAF8] p-3 text-center dark:bg-[#252235]">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                Remaining
+              </p>
+              <p
+                className={`mt-1 font-jakarta text-sm font-bold ${
+                  remaining < 0 ? "text-red-500" : "text-emerald-600 dark:text-emerald-400"
+                }`}
+              >
+                {formatRupiah(remaining)}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-gray-500">Remaining</p>
-            <p
-              className={`mt-1 text-lg font-bold ${
-                remaining < 0 ? "text-red-500" : "text-green-600"
-              }`}
-            >
-              {formatRupiah(remaining)}
-            </p>
-          </div>
-        </div>
-        <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-[#221F32]">
-          <div
-            className={`h-full rounded-full transition-all ${barColor}`}
-            style={{ width: `${Math.min(pct, 100)}%` }}
-          />
         </div>
       </div>
 
       {/* Expense list */}
-      <div className="rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-bold text-kiiya-dark dark:text-white">Expenses</h3>
+      <div className="rounded-3xl bg-white p-6 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:bg-[#1A1725]">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="font-jakarta font-bold text-kiiya-dark dark:text-white">Expenses</h3>
           <button
             onClick={() => setGrouped((g) => !g)}
             className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition ${
@@ -268,8 +311,8 @@ export default function BudgetTab({
               const meta = getCategory(cat);
               const subtotal = items.reduce((s, e) => s + (e.amount || 0), 0);
               return (
-                <div key={cat}>
-                  <div className="mb-1 flex items-center justify-between px-1">
+                <div key={cat} className="space-y-2">
+                  <div className="flex items-center justify-between px-1">
                     <span className="text-xs font-bold uppercase tracking-wide text-gray-400">
                       {meta.label}
                     </span>
@@ -295,7 +338,7 @@ export default function BudgetTab({
             <NewExpenseRow onAdd={addExpense} />
           </div>
         ) : (
-          <div className="space-y-0.5">
+          <div className="space-y-2">
             {expenses.length === 0 && (
               <p className="px-1 py-2 text-sm text-gray-400">
                 💸 No expenses yet — start tracking below.

@@ -25,38 +25,36 @@ function MemberRow({ member, canRemove, onRemove }) {
   const role = ROLE_META[member.role] ?? ROLE_META.viewer;
   const RoleIcon = role.icon;
   return (
-    <div className="group flex items-center gap-3 rounded-xl border border-gray-100 p-3 dark:border-[#2D2A3E]">
-      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-kiiya-primary text-sm font-semibold text-white">
-        {initials(member.email)}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold text-kiiya-dark dark:text-white">{member.email}</p>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${role.badge}`}
-          >
-            <RoleIcon className="h-3 w-3" />
-            {t(`members.${role.labelKey}`)}
-          </span>
-          {member.status && (
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                STATUS_BADGE[member.status] ?? "bg-gray-100 text-gray-600"
-              }`}
-            >
-              {t(`members.${member.status}`)}
-            </span>
-          )}
-        </div>
-      </div>
+    <div className="group relative flex flex-col items-center gap-2 rounded-2xl bg-[#FAFAF8] p-4 text-center dark:bg-[#252235]">
       {canRemove && (
         <button
           onClick={() => onRemove(member.id)}
           aria-label={t("members.remove")}
-          className="flex-shrink-0 rounded-md p-1 text-gray-300 transition hover:bg-red-50 hover:text-red-500"
+          className="absolute right-2 top-2 rounded-full p-1 text-gray-300 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
         >
           <X className="h-4 w-4" />
         </button>
+      )}
+      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-kiiya-primary to-kiiya-romantic text-sm font-bold text-white">
+        {initials(member.email)}
+      </div>
+      <p className="w-full truncate font-jakarta text-sm font-semibold text-kiiya-dark dark:text-white">
+        {member.email}
+      </p>
+      <span
+        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${role.badge}`}
+      >
+        <RoleIcon className="h-3 w-3" />
+        {t(`members.${role.labelKey}`)}
+      </span>
+      {member.status && (
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+            STATUS_BADGE[member.status] ?? "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {t(`members.${member.status}`)}
+        </span>
       )}
     </div>
   );
@@ -96,8 +94,8 @@ export default function MembersTab({
   return (
     <div className="space-y-6">
       {/* Invite form */}
-      <div className="rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
-        <h3 className="mb-3 font-bold text-kiiya-dark dark:text-white">{t("members.invite")}</h3>
+      <div className="rounded-3xl bg-white p-6 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:bg-[#1A1725]">
+        <h3 className="mb-3 font-jakarta font-bold text-kiiya-dark dark:text-white">{t("members.invite")}</h3>
         <form
           onSubmit={handleInvite}
           className="flex flex-col gap-2 sm:flex-row"
@@ -134,27 +132,27 @@ export default function MembersTab({
       </div>
 
       {/* Members list */}
-      <div className="rounded-2xl border border-purple-100 bg-white p-5 dark:border-[#2D2A3E] dark:bg-[#1A1825]">
-        <h3 className="mb-4 font-bold text-kiiya-dark dark:text-white">{t("members.title")}</h3>
-        <div className="space-y-2">
-          {/* Owner (current user) — always shown, never removable */}
-          {currentUserEmail && (
-            <MemberRow
-              member={{
-                id: "owner",
-                email: currentUserEmail,
-                role: "owner",
-                status: "accepted",
-              }}
-              canRemove={false}
-            />
-          )}
-          {members.length === 0 ? (
-            <p className="py-4 text-center text-sm text-gray-400">
-              {t("members.empty")}
-            </p>
-          ) : (
-            members.map((m) => (
+      <div className="rounded-3xl bg-white p-6 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:bg-[#1A1725]">
+        <h3 className="mb-4 font-jakarta font-bold text-kiiya-dark dark:text-white">{t("members.title")}</h3>
+        {members.length === 0 && !currentUserEmail ? (
+          <p className="py-4 text-center text-sm text-gray-400">
+            {t("members.empty")}
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            {/* Owner (current user) — always shown, never removable */}
+            {currentUserEmail && (
+              <MemberRow
+                member={{
+                  id: "owner",
+                  email: currentUserEmail,
+                  role: "owner",
+                  status: "accepted",
+                }}
+                canRemove={false}
+              />
+            )}
+            {members.map((m) => (
               <MemberRow
                 key={m.id}
                 member={m}
@@ -163,9 +161,14 @@ export default function MembersTab({
                   removeMember(id).catch((e) => toast.error(e.message))
                 }
               />
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
+        {members.length === 0 && currentUserEmail && (
+          <p className="mt-3 text-center text-xs text-gray-400">
+            {t("members.empty")}
+          </p>
+        )}
       </div>
     </div>
   );
