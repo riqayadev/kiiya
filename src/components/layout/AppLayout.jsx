@@ -105,9 +105,9 @@ function SidebarContent({ user, profile, signOut, pathname, onNavigate }) {
               href={to}
               onClick={onNavigate}
               aria-current={isActive ? "page" : undefined}
-              className={`mx-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all ${
+              className={`relative mx-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all ${
                 isActive
-                  ? "bg-[#7C6EF5]/15 font-semibold text-[#7C6EF5] dark:bg-[#7C6EF5]/20"
+                  ? "bg-[#7C6EF5]/15 font-semibold text-[#7C6EF5] before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-r-full before:bg-[#7C6EF5] before:content-[''] dark:bg-[#7C6EF5]/20"
                   : "text-gray-500 hover:bg-[#7C6EF5]/8 hover:text-[#7C6EF5] dark:text-[#A89EC9] dark:hover:bg-white/5"
               }`}
             >

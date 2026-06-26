@@ -239,7 +239,7 @@ export default function EventDetailPage({ params }) {
               <InlineEdit
                 value={event.title}
                 onSave={saveField("title")}
-                placeholder="Untitled event"
+                placeholder={t("placeholders.eventName")}
               />
             </PropCard>
 
@@ -300,7 +300,7 @@ export default function EventDetailPage({ params }) {
               <InlineEdit
                 value={event.location}
                 onSave={saveField("location")}
-                placeholder="Add location"
+                placeholder={t("placeholders.location")}
               />
             </PropCard>
 
@@ -338,7 +338,7 @@ export default function EventDetailPage({ params }) {
                 type="textarea"
                 value={event.description}
                 onSave={saveField("description")}
-                placeholder="Add a description…"
+                placeholder={t("placeholders.description")}
               />
             </div>
           </div>

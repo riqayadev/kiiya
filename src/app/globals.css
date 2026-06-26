@@ -150,6 +150,82 @@ button:not(:disabled):active {
   }
 }
 
+/* Staggered card entrance (grids) */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.card-enter {
+  animation: cardEnter 0.4s ease forwards;
+  opacity: 0;
+}
+.stagger-1 {
+  animation-delay: 0.05s;
+}
+.stagger-2 {
+  animation-delay: 0.1s;
+}
+.stagger-3 {
+  animation-delay: 0.15s;
+}
+.stagger-4 {
+  animation-delay: 0.2s;
+}
+.stagger-5 {
+  animation-delay: 0.25s;
+}
+.stagger-6 {
+  animation-delay: 0.3s;
+}
+
+/* Tactile press effect on primary buttons */
+.btn-primary {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(124, 110, 245, 0.3);
+}
+
+/* Subtle shimmer sweep on CTA hover */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+.btn-shimmer:hover::after {
+  left: 150%;
+}
+
+/* Avatar hover glow (profile) */
+.avatar-glow {
+  transition: box-shadow 0.3s ease;
+}
+.avatar-glow:hover {
+  box-shadow: 0 0 0 4px rgba(124, 110, 245, 0.2),
+    0 0 20px rgba(124, 110, 245, 0.15);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .card-hover,
   .card-hover:hover {
@@ -158,6 +234,10 @@ button:not(:disabled):active {
   }
   .page-enter {
     animation: none;
+  }
+  .card-enter {
+    animation: none;
+    opacity: 1;
   }
 }
 

@@ -58,7 +58,7 @@ export function useEvents() {
     }
     const next = [data, ...events];
     setEvents(next);
-    toast.success("Event created!");
+    toast.success("Event created! Let's plan something amazing 🎉");
     checkEventAchievements(next);
     return data;
   };
@@ -76,7 +76,7 @@ export function useEvents() {
       throw error;
     }
     setEvents((prev) => prev.map((e) => (e.id === id ? data : e)));
-    toast.success("Changes saved!");
+    toast.success("Saved! Looking good ✨");
     return data;
   };
 
@@ -91,7 +91,7 @@ export function useEvents() {
       throw error;
     }
     setEvents((prev) => prev.filter((e) => e.id !== id));
-    toast.success("Event deleted.");
+    toast.success("Gone. On to the next adventure.");
   };
 
   // ── Computed values (memo-free; cheap derivations over a small array) ──

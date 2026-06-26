@@ -32,7 +32,8 @@ export function formatDateShort(date) {
 
 export function getTimeGreeting() {
   const hour = new Date().getHours();
-  if (hour < 12) return "morning";
-  if (hour < 17) return "afternoon";
-  return "evening";
+  if (hour >= 5 && hour < 11) return "morning";
+  if (hour >= 11 && hour < 15) return "afternoon";
+  if (hour >= 15 && hour < 18) return "evening";
+  return "night";
 }

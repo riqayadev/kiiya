@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { getCategory, ACTIVITY_CATEGORIES } from "@/utils/categories";
 import { formatRupiah, formatDateShort } from "@/utils/format";
+import { t } from "@/utils/i18n";
 import { toast } from "@/components/ui/Toast";
 
 function timeValue(time) {
@@ -137,7 +138,7 @@ function ActivityRow({
               onDelete();
             }
           }}
-          placeholder="Activity…"
+          placeholder={t("placeholders.activityTitle")}
           className={`min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm font-medium text-kiiya-dark outline-none dark:text-white transition hover:border-gray-200 focus:border-kiiya-primary ${
             activity.is_completed ? "line-through opacity-50" : ""
           }`}

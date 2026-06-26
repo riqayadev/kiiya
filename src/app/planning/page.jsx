@@ -315,11 +315,11 @@ function EventRow({ event, onOpen, onEdit, onStatus, onDelete }) {
   );
 }
 
-function EventCard({ event, onEdit, onStatus, onDelete }) {
+function EventCard({ event, onEdit, onStatus, onDelete, className = "" }) {
   const colors = getEventColor(event.type);
   const budgetText = formatBudgetShort(event.budget);
   return (
-    <div className="card-hover group relative overflow-hidden rounded-3xl bg-white shadow-[0_2px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgba(124,110,245,0.15)] dark:bg-[#1A1725]">
+    <div className={`card-hover group relative overflow-hidden rounded-3xl bg-white shadow-[0_2px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgba(124,110,245,0.15)] dark:bg-[#1A1725] ${className}`}>
       {/* Cover (≈65% of card) with status badge + menu overlaid */}
       <Link
         href={`/dashboard/events/${event.id}`}
@@ -503,7 +503,7 @@ export default function Planning() {
         </div>
         <button
           onClick={() => setShowNewEventModal(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-kiiya-primary px-5 py-3 font-semibold text-white shadow-primary transition hover:bg-[#6B5EE4]"
+          className="btn-primary inline-flex items-center justify-center gap-2 rounded-2xl bg-kiiya-primary px-5 py-3 font-semibold text-white shadow-primary transition hover:bg-[#6B5EE4]"
         >
           <Plus className="h-5 w-5" />
           {t("dashboard.newEvent")}
@@ -728,7 +728,7 @@ export default function Planning() {
               </p>
               <button
                 onClick={() => setShowNewEventModal(true)}
-                className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 font-jakarta font-bold text-kiiya-primary shadow-lg transition hover:scale-[1.03]"
+                className="btn-primary btn-shimmer mt-8 inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 font-jakarta font-bold text-kiiya-primary shadow-lg transition hover:scale-[1.03]"
               >
                 <Plus className="h-5 w-5" />
                 {t("dashboard.newEvent")}
@@ -770,13 +770,14 @@ export default function Planning() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((event) => (
+          {filtered.map((event, i) => (
             <EventCard
               key={event.id}
               event={event}
               onEdit={() => setEditEvent(event)}
               onStatus={(status) => onStatus(event, status)}
               onDelete={() => handleDelete(event)}
+              className={i < 6 ? `card-enter stagger-${i + 1}` : ""}
             />
           ))}
         </div>

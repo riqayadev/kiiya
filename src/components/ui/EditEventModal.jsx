@@ -343,7 +343,7 @@ export default function EditEventModal({ isOpen, event, onClose, onSubmit }) {
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-2.5 font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+              className="btn-primary flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-2.5 font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
             >
               {loading && <Loader2 className="h-5 w-5 animate-spin" />}
               {t("editEvent.save")}

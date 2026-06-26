@@ -324,7 +324,7 @@ export default function NewEventModal({
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-2.5 font-semibold text-white transition hover:bg-[#6B5EE4] disabled:opacity-60"
+              className="btn-primary flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-2.5 font-semibold text-white transition hover:bg-[#6B5EE4] disabled:opacity-60"
             >
               {loading && <Loader2 className="h-5 w-5 animate-spin" />}
               Create

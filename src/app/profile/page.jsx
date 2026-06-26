@@ -385,7 +385,7 @@ export default function ProfilePage() {
                     onClick={() => fileRef.current?.click()}
                     disabled={uploading}
                     aria-label={t("profile.uploadPhoto")}
-                    className="group relative h-24 w-24 overflow-hidden rounded-full ring-2 ring-[#7C6EF5]/30 ring-offset-2 ring-offset-white transition dark:ring-offset-[#1E1B2E]"
+                    className="avatar-glow group relative h-24 w-24 overflow-hidden rounded-full ring-2 ring-[#7C6EF5]/30 ring-offset-2 ring-offset-white transition dark:ring-offset-[#1E1B2E]"
                   >
                     {profile?.avatar_url ? (
                       // eslint-disable-next-line @next/next/no-img-element

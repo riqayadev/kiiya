@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CheckCircle, AlertCircle, Info, X } from "lucide-react";
+import { Check, AlertCircle, Info, X } from "lucide-react";
 
 const TOAST_EVENT = "kiiya-toast";
 
@@ -19,9 +19,9 @@ function emit(type, message) {
 }
 
 const VARIANTS = {
-  success: { icon: CheckCircle, ring: "border-green-200", accent: "text-green-600", bar: "bg-green-500" },
-  error: { icon: AlertCircle, ring: "border-red-200", accent: "text-red-600", bar: "bg-red-500" },
-  info: { icon: Info, ring: "border-purple-200", accent: "text-kiiya-primary", bar: "bg-kiiya-primary" },
+  success: { icon: Check, ring: "border-green-200", accent: "text-green-600", card: "" },
+  error: { icon: AlertCircle, ring: "border-red-200", accent: "text-red-600", card: "border-l-4 border-l-red-500" },
+  info: { icon: Info, ring: "border-purple-200", accent: "text-kiiya-primary", card: "" },
 };
 
 function ToastItem({ t, onClose }) {
@@ -33,10 +33,16 @@ function ToastItem({ t, onClose }) {
   }, [onClose]);
   return (
     <div
-      className={`pointer-events-auto flex w-80 max-w-[calc(100vw-2rem)] items-start gap-3 overflow-hidden rounded-xl border bg-white p-4 shadow-lg animate-toast-in dark:bg-[#1A1825] dark:shadow-black/40 ${v.ring}`}
+      className={`pointer-events-auto flex w-80 max-w-[calc(100vw-2rem)] items-start gap-3 overflow-hidden rounded-xl border bg-white p-4 shadow-lg animate-toast-in dark:bg-[#1A1825] dark:shadow-black/40 ${v.ring} ${v.card}`}
       role="status"
     >
-      <Icon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${v.accent}`} />
+      {t.type === "success" ? (
+        <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-500">
+          <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+        </span>
+      ) : (
+        <Icon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${v.accent}`} />
+      )}
       <p className="min-w-0 flex-1 text-sm font-medium text-kiiya-dark dark:text-white">
         {t.message}
       </p>

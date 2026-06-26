@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Sparkles, ArrowRight, Menu, X, PlayCircle } from "lucide-react";
 import { useLang } from "@/hooks/useLang";
@@ -83,14 +83,28 @@ function MagazineMockup() {
 export default function Landing() {
   useLang();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const features = t("features.items");
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] text-kiiya-dark">
       {/* ── NAVBAR ─────────────────────────────── */}
-      <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/20 backdrop-blur-xl">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-8">
+      <header
+        className={`fixed top-0 z-50 w-full transition-all duration-300 ${
+          scrolled
+            ? "border-b border-white/10 bg-black/40 py-3 backdrop-blur-xl"
+            : "border-b border-transparent bg-transparent py-5"
+        }`}
+      >
+        <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 md:px-8">
           <Link
             href="/"
             className="flex items-center gap-1.5 font-jakarta text-xl font-extrabold text-white"
@@ -108,7 +122,7 @@ export default function Landing() {
             </Link>
             <Link
               href="/register"
-              className="rounded-xl bg-[#7C6EF5] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#6B5EE4]"
+              className="btn-primary rounded-xl bg-[#7C6EF5] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#6B5EE4]"
             >
               {t("nav.getStarted")}
             </Link>
@@ -182,7 +196,7 @@ export default function Landing() {
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 rounded-2xl bg-[#7C6EF5] px-8 py-4 font-jakarta font-semibold text-white shadow-[0_8px_30px_rgba(124,110,245,0.4)] transition hover:bg-[#6B5EE4]"
+              className="btn-primary btn-shimmer inline-flex items-center gap-2 rounded-2xl bg-[#7C6EF5] px-8 py-4 font-jakarta font-semibold text-white shadow-[0_8px_30px_rgba(124,110,245,0.4)] transition hover:bg-[#6B5EE4]"
             >
               Get Started Free <ArrowRight className="h-5 w-5" />
             </Link>
@@ -294,7 +308,7 @@ export default function Landing() {
           </p>
           <Link
             href="/register"
-            className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-white px-8 py-4 font-jakarta text-lg font-bold text-kiiya-primary shadow-lg transition hover:scale-105"
+            className="btn-primary btn-shimmer mt-8 inline-flex items-center gap-2 rounded-2xl bg-white px-8 py-4 font-jakarta text-lg font-bold text-kiiya-primary shadow-lg transition hover:scale-105"
           >
             {t("cta.button")} <ArrowRight className="h-5 w-5" />
           </Link>

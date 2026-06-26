@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2, GripVertical, FolderPlus } from "lucide-react";
+import { t } from "@/utils/i18n";
 import { toast } from "@/components/ui/Toast";
 
 function ChecklistRow({
@@ -152,7 +153,7 @@ function Section({
               }
             }}
             onBlur={commitNew}
-            placeholder="Add item…"
+            placeholder={t("placeholders.checklistItem")}
             className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-sm text-gray-500 outline-none transition hover:border-gray-200 focus:border-kiiya-primary"
           />
         </div>

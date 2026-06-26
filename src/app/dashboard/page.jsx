@@ -28,9 +28,10 @@ import AsyncErrorBoundary from "@/components/ui/AsyncErrorBoundary";
 import { perf } from "@/utils/perf";
 
 const GREETINGS = {
-  morning: "Good morning",
-  afternoon: "Good afternoon",
-  evening: "Good evening",
+  morning: "Good morning ☀️",
+  afternoon: "Good afternoon 🌤",
+  evening: "Good evening 🌇",
+  night: "Good night 🌙",
 };
 
 function DashboardSkeleton() {
@@ -143,11 +144,11 @@ function StatCard({ icon: Icon, value, label, accent, trend }) {
   );
 }
 
-function QuickAction({ icon: Icon, label, tintBg, tintText, onClick }) {
+function QuickAction({ icon: Icon, label, tintBg, tintText, onClick, className = "" }) {
   return (
     <button
       onClick={onClick}
-      className="flex min-w-[140px] flex-col gap-2 rounded-2xl p-4 text-left transition hover:scale-[1.02]"
+      className={`btn-primary flex min-w-[140px] flex-col gap-2 rounded-2xl p-4 text-left transition hover:scale-[1.02] ${className}`}
       style={{ backgroundColor: tintBg }}
     >
       <span
@@ -385,7 +386,10 @@ export default function Dashboard() {
             }
           >
             {recentGrid.map((event, i) => (
-              <div key={event.id} className={span(i)}>
+              <div
+                key={event.id}
+                className={`card-enter stagger-${i + 1} ${span(i)}`}
+              >
                 <MagazineCard event={event} />
               </div>
             ))}
@@ -405,6 +409,7 @@ export default function Dashboard() {
             tintBg="rgba(124,110,245,0.1)"
             tintText="#7C6EF5"
             onClick={() => setShowNewEvent(true)}
+            className="btn-shimmer"
           />
           <QuickAction
             icon={Star}

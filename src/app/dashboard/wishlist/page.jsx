@@ -178,7 +178,7 @@ export default function WishlistPage() {
         </div>
         <button
           onClick={openAdd}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white shadow-primary transition hover:bg-[#6B5EE4]"
+          className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white shadow-primary transition hover:bg-[#6B5EE4]"
         >
           <Plus className="h-5 w-5" />
           {t("wishlist.addWish")}
@@ -214,8 +214,8 @@ export default function WishlistPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="mb-4 text-5xl">⭐</div>
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+          <div className="mb-4 text-7xl">⭐</div>
+          <h3 className="font-jakarta text-xl font-bold text-gray-700 dark:text-gray-200">
             {t("wishlist.emptyTitle")}
           </h3>
           <p className="mx-auto mt-1 max-w-xs text-sm text-gray-400 dark:text-gray-500">
@@ -223,7 +223,7 @@ export default function WishlistPage() {
           </p>
           <button
             onClick={openAdd}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white transition hover:opacity-90"
+            className="btn-primary mt-6 inline-flex items-center gap-2 rounded-xl bg-kiiya-primary px-5 py-3 font-semibold text-white transition hover:opacity-90"
           >
             <Plus className="h-5 w-5" />
             {t("wishlist.addWish")}
@@ -231,13 +231,15 @@ export default function WishlistPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((wish) => {
+          {filtered.map((wish, i) => {
             const prio = PRIORITY[wish.priority] || PRIORITY[2];
             const planned = !!wish.converted_event_id;
             return (
               <div
                 key={wish.id}
-                className="group relative overflow-hidden rounded-2xl border border-purple-100 bg-white transition hover:shadow-card-hover dark:border-[#2D2A3E] dark:bg-[#1A1825]"
+                className={`group relative overflow-hidden rounded-2xl border border-purple-100 bg-white transition hover:shadow-card-hover dark:border-[#2D2A3E] dark:bg-[#1A1825] ${
+                  i < 6 ? `card-enter stagger-${i + 1}` : ""
+                }`}
               >
                 {/* Cover */}
                 <div className="relative h-32">
